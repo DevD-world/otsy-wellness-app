@@ -1,0 +1,119 @@
+.chart-container {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  height: 100%;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #f1f5f9;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.chart-header h3 {
+  margin: 0;
+  color: var(--primary-blue);
+  font-size: 1.1rem;
+}
+
+.chart-legend {
+  font-size: 0.8rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  background: #8884d8;
+  border-radius: 50%;
+}
+
+/* Chart Area */
+.bar-chart-area {
+  display: flex;
+  flex-grow: 1;
+  gap: 15px;
+}
+
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  padding-bottom: 25px; /* Align with bars */
+}
+
+.bars-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+/* Bars */
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.visual-bar {
+  width: 12px;
+  background: #e0e7ff;
+  border-radius: 10px;
+  position: relative;
+  transition: height 0.5s ease, background 0.3s;
+  background: linear-gradient(to top, #8884d8, #b3b0e6);
+}
+
+.visual-bar:hover {
+  background: linear-gradient(to top, #6c63ff, #8884d8);
+  width: 16px;
+  cursor: pointer;
+}
+
+/* Tooltip (Hidden by default, shown on hover) */
+.tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: 0.2s;
+  pointer-events: none;
+}
+
+.visual-bar:hover .tooltip {
+  opacity: 1;
+  top: -35px;
+}
+
+.day-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+}

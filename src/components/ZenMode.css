@@ -1,0 +1,146 @@
+/* Full Screen Overlay Container */
+.zen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000; /* Highest layer in the app */
+  
+  /* Fallback Gradient (Visible if video fails) */
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); 
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 1s ease;
+}
+
+/* Background Video */
+.zen-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures video fills screen without stretching */
+  opacity: 0.6; /* Slight transparency to blend with gradient */
+  z-index: 1;
+}
+
+/* Dimmer Overlay (Makes text readable) */
+.zen-dimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+  z-index: 2;
+}
+
+/* Central Content Container */
+.zen-content {
+  position: relative;
+  z-index: 3; /* Above video and dimmer */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Breathing Text (INHALE / EXHALE) */
+.zen-text {
+  font-size: 4rem;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 200;
+  letter-spacing: 10px;
+  text-transform: uppercase;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  margin: 0;
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Subtitle */
+.zen-sub {
+  color: rgba(255,255,255,0.8);
+  font-size: 1.2rem;
+  font-weight: 300;
+  letter-spacing: 1px;
+}
+
+/* The Breathing Circle Visual */
+.zen-circle {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255,255,255,0.8);
+  
+  /* Smooth animation for breathing */
+  transition: all 4s cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* Circle States */
+.zen-circle.inhale {
+  transform: scale(8); 
+  opacity: 0.5;
+}
+
+.zen-circle.hold {
+  transform: scale(8); 
+  opacity: 0.8;
+}
+
+.zen-circle.exhale {
+  transform: scale(1); 
+  opacity: 0.3;
+}
+
+/* Exit Button */
+.zen-exit-btn {
+  position: absolute;
+  bottom: 40px;
+  z-index: 3;
+  
+  /* Glassmorphism Effect */
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  
+  color: white;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.zen-exit-btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .zen-text { font-size: 2.5rem; letter-spacing: 5px; }
+  .zen-circle.inhale, .zen-circle.hold { transform: scale(6); }
+}

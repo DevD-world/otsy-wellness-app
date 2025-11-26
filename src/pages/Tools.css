@@ -1,0 +1,178 @@
+.tools-container { padding-bottom: 50px; }
+.tools-header h2 { color: var(--primary-blue); margin-bottom: 5px; }
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+/* Card Basics */
+.tool-card {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.card-top h3 { margin: 0; color: #333; font-size: 1.1rem; }
+.icon-purple { color: #9c27b0; }
+.icon-blue { color: #1976d2; }
+.icon-gold { color: #fbc02d; }
+
+/* --- BREATHING ANIMATION --- */
+.circle-container {
+  height: 220px;
+  background: #f3e5f5;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.breath-circle {
+  width: 100px;
+  height: 100px;
+  background: #ce93d8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  box-shadow: 0 0 20px rgba(156, 39, 176, 0.4);
+  
+  /* CRITICAL: Base transition for smoothness */
+  transition: all 1s ease-in-out; 
+}
+
+/* The Phases */
+.breath-circle.idle { transform: scale(1); }
+
+.breath-circle.inhale {
+  transform: scale(1.8); /* Grows big */
+  background: #ba68c8;
+  transition-duration: 4s; /* Takes 4s to grow */
+}
+
+.breath-circle.hold {
+  transform: scale(1.8); /* Stays big */
+  background: #8e24aa;
+}
+
+.breath-circle.exhale {
+  transform: scale(1); /* Shrinks back */
+  background: #ce93d8;
+  transition-duration: 8s; /* Takes 8s to shrink */
+}
+
+.breath-instruction { margin-top: 20px; font-weight: bold; color: #7b1fa2; }
+
+.action-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; margin-top: auto; }
+.start { background: var(--primary-blue); color: white; }
+.stop { background: #ef5350; color: white; }
+
+/* --- JOURNAL --- */
+.journal-card { grid-row: span 2; }
+.journal-input {
+  flex-grow: 1;
+  min-height: 200px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  resize: none;
+  background: #fafafa;
+  font-family: inherit;
+  margin-bottom: 15px;
+}
+.journal-input:focus { outline: 2px solid var(--accent-blue); background: white; }
+
+.button-row { display: flex; gap: 10px; }
+.save-btn { flex: 2; background: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.clear-btn { flex: 1; background: #eee; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.saved-badge { margin-left: auto; color: green; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; font-weight: bold; }
+
+/* --- QUOTES --- */
+.quote-display {
+  background: #fff9c4;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-style: italic;
+  color: #5d4037;
+  margin-bottom: 15px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.new-quote-btn { background: #fbc02d; color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+/* ... Keep existing styles ... */
+
+.icon-green { color: #2e7d32; }
+
+/* Sound Grid */
+.sound-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+}
+
+.sound-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #f1f8e9;
+  border: 1px solid #dcedc8;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #33691e;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.sound-btn:hover { background: #dcedc8; }
+
+.sound-btn.active {
+  background: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+}
+
+/* Playing Bars Animation */
+.now-playing-anim {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: bold;
+}
+
+.bar {
+  width: 4px;
+  height: 10px;
+  background: #2e7d32;
+  border-radius: 2px;
+  animation: equalize 1s infinite;
+}
+
+.bar:nth-child(2) { animation-delay: 0.2s; }
+.bar:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes equalize {
+  0% { height: 5px; }
+  50% { height: 15px; }
+  100% { height: 5px; }
+}

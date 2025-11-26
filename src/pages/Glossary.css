@@ -1,0 +1,51 @@
+.glossary-container { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+.gloss-header { text-align: center; margin-bottom: 40px; }
+.gloss-header h2 { color: var(--primary-blue); margin-bottom: 5px; }
+
+.gloss-search {
+  margin-top: 20px;
+  background: white;
+  padding: 12px 20px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.gloss-search input { border: none; outline: none; flex-grow: 1; font-size: 1rem; }
+
+.terms-list { display: flex; flex-direction: column; gap: 15px; }
+
+.term-card {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  transition: transform 0.2s;
+  border: 1px solid #f8f9fa;
+}
+
+.term-card:hover { transform: translateX(5px); border-color: var(--accent-blue); }
+
+.term-icon {
+  background: #e3f2fd;
+  color: #1565c0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.term-content h3 { margin: 0 0 5px 0; color: #333; font-size: 1.1rem; }
+.term-content p { margin: 0; color: #64748b; line-height: 1.5; }
+.no-results { text-align: center; color: #999; margin-top: 20px; }

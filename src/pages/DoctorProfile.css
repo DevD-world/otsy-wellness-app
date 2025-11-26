@@ -1,0 +1,30 @@
+.doc-profile-container { max-width: 900px; margin: 0 auto; padding-bottom: 50px; animation: fadeIn 0.5s ease; }
+.back-link { background: none; border: none; display: flex; align-items: center; gap: 8px; color: #64748b; cursor: pointer; font-weight: 600; margin-bottom: 20px; }
+.back-link:hover { color: var(--primary-blue); }
+
+.doc-header-card { background: white; padding: 30px; border-radius: 20px; display: flex; align-items: center; gap: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; position: relative; }
+.doc-avatar-large { width: 100px; height: 100px; background: var(--primary-blue); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; }
+.doc-header-info h1 { margin: 5px 0 10px 0; color: #333; }
+.doc-role-tag { background: #e3f2fd; color: #1565c0; padding: 5px 12px; border-radius: 10px; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
+.doc-location { display: flex; gap: 15px; color: #64748b; font-size: 0.95rem; }
+.doc-badge { position: absolute; top: 30px; right: 30px; color: #2e7d32; display: flex; flex-direction: column; align-items: center; font-size: 0.8rem; font-weight: bold; }
+
+.doc-content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+.doc-section { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px; }
+.doc-section h3 { margin-top: 0; color: var(--primary-blue); }
+.doc-section p { line-height: 1.6; color: #475569; }
+
+.doc-stats-row { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 15px; }
+.doc-stat { background: white; flex: 1; padding: 20px; text-align: center; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+.doc-stat h4 { margin: 0; font-size: 1.5rem; color: var(--accent-blue); }
+.doc-stat span { font-size: 0.85rem; color: #94a3b8; }
+
+.review-item { border-bottom: 1px solid #eee; padding: 15px 0; }
+.review-item:last-child { border-bottom: none; }
+.review-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.booking-widget { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+.avail-slots { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 15px 0; }
+.avail-slots button { padding: 8px 15px; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer; }
+.avail-slots button:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.main-book-btn { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.note { font-size: 0.8rem; color: #999; margin-top: 10px; }
