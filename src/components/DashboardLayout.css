@@ -151,3 +151,17 @@
 .notif-item span { font-size: 0.75rem; color: #94a3b8; }
 
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.install-btn {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-weight: bold;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.install-btn:hover {
+  background: #bbdefb;
+}
