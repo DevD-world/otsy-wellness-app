@@ -122,3 +122,21 @@
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.google-btn {
+  width: 100%;
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: 0.2s;
+}
+.google-btn:hover { background: #f8fafc; border-color: #ccc; }
+.google-btn img { width: 20px; height: 20px; }

@@ -1,36 +1,67 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Ensure you have firebase installed, OR for now just simulate login
-// If you deleted firebase setup, use the Simulated Logic below:
+// Import Firebase functions
+import { auth, googleProvider } from '../firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
 import './Auth.css'; 
 
 const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleAuth = (e) => {
+  // 1. Handle Email/Password Auth
+  const handleAuth = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // SIMULATED LOGIN FOR FRONTEND DEMO
-    if(email && password) {
-      // Create fake user data
-      const userData = { 
-        name: email.split('@')[0], // Use part of email as name
-        email: email 
-      };
-      
-      // Save to localStorage (This logs them in!)
-      localStorage.setItem('otsy_user', JSON.stringify(userData));
-      
-      // Go to Dashboard
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        // LOGIN
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        saveUserLocally(userCredential.user);
+      } else {
+        // SIGN UP
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Add Display Name to profile
+        await updateProfile(userCredential.user, { displayName: name });
+        saveUserLocally(userCredential.user);
+      }
       navigate('/dashboard');
-    } else {
-      setError("Please fill in all fields.");
+    } catch (err) {
+      // Show friendly error messages
+      const msg = err.code.replace('auth/', '').replace(/-/g, ' ');
+      setError(msg.charAt(0).toUpperCase() + msg.slice(1));
     }
+    setLoading(false);
+  };
+
+  // 2. Handle Google Login
+  const handleGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      saveUserLocally(result.user);
+      navigate('/dashboard');
+    } catch (err) {
+      setError("Google sign in failed. Try again.");
+    }
+  };
+
+  // Helper to keep app working with existing localStorage logic
+  const saveUserLocally = (user) => {
+    const userData = {
+      name: user.displayName || user.email.split('@')[0],
+      email: user.email,
+      uid: user.uid,
+      photo: user.photoURL
+    };
+    localStorage.setItem('otsy_user', JSON.stringify(userData));
   };
 
   return (
@@ -42,24 +73,34 @@ const Auth = () => {
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleAuth}>
+          {/* Show Name field only for Sign Up */}
+          {!isLogin && (
+            <input 
+              type="text" placeholder="Full Name" 
+              value={name} onChange={(e) => setName(e.target.value)} required 
+            />
+          )}
+          
           <input 
-            type="email" 
-            placeholder="Email Address" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required 
+            type="email" placeholder="Email Address" 
+            value={email} onChange={(e) => setEmail(e.target.value)} required 
           />
           <input 
-            type="password" 
-            placeholder="Password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required 
+            type="password" placeholder="Password" 
+            value={password} onChange={(e) => setPassword(e.target.value)} required 
           />
-          <button type="submit" className="primary-btn">
-            {isLogin ? 'Log In' : 'Sign Up'}
+          
+          <button type="submit" className="primary-btn" disabled={loading}>
+            {loading ? 'Processing...' : (isLogin ? 'Log In' : 'Sign Up')}
           </button>
         </form>
+
+        <div className="divider"><span>OR</span></div>
+
+        <button className="google-btn" onClick={handleGoogle}>
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+          Continue with Google
+        </button>
 
         <p className="toggle-text">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
