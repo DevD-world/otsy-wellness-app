@@ -1,0 +1,124 @@
+/* Page Container */
+.auth-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 20px;
+}
+
+/* Card Styling */
+.auth-card {
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-card h2 {
+  color: #1565c0; /* Primary Blue */
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.auth-subtitle {
+  color: #64748b;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+/* Form Elements */
+.auth-card input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+  outline: none;
+}
+
+.auth-card input:focus {
+  border-color: #1565c0;
+  background-color: #f8fdff;
+}
+
+/* Buttons */
+.primary-btn {
+  width: 100%;
+  padding: 14px;
+  background: #1565c0;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 10px;
+}
+
+.primary-btn:hover {
+  background: #0d47a1;
+  transform: translateY(-1px);
+}
+
+.primary-btn:active {
+  transform: scale(0.98);
+}
+
+/* Divider (OR) */
+.divider {
+  margin: 25px 0;
+  border-bottom: 1px solid #eee;
+  line-height: 0.1em;
+}
+.divider span {
+  background: #fff;
+  padding: 0 10px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+/* Toggle Text (Switch Login/Signup) */
+.toggle-text {
+  margin-top: 25px;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.toggle-text span {
+  color: #1565c0;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.toggle-text span:hover {
+  text-decoration: underline;
+}
+
+/* Error Message */
+.error-msg {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid #ffcdd2;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

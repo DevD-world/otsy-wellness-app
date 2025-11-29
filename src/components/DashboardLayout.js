@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Home, Heart, BookOpen, Users, LogOut, Menu, X, User, Bell, Download } from 'lucide-react';
+// Import ALL icons used
+import { Home, Heart, BookOpen, Users, LogOut, LogIn, Menu, X, User, Bell, Download } from 'lucide-react';
 import './DashboardLayout.css';
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState('Friend');
+  
+  // User & Guest State
+  const [userName, setUserName] = useState('Guest');
+  const [isGuest, setIsGuest] = useState(true);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   
   // Notification State
@@ -21,16 +25,22 @@ const DashboardLayout = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   useEffect(() => {
-    // 1. Load User Name
+    // 1. Check User Status (Guest or Logged In)
     const stored = localStorage.getItem('otsy_user');
-    if (stored) setUserName(JSON.parse(stored).name || 'Friend');
+    if (stored) {
+      setUserName(JSON.parse(stored).name || 'Friend');
+      setIsGuest(false);
+    } else {
+      setUserName('Guest');
+      setIsGuest(true);
+    }
     
     // 2. Mobile Resize Logic
     const handleResize = () => { 
       if (window.innerWidth < 768) setSidebarOpen(false); 
       else setSidebarOpen(true); 
     };
-    handleResize(); // Run on mount
+    handleResize(); 
     window.addEventListener('resize', handleResize);
 
     // 3. Listen for "Install App" readiness
@@ -45,16 +55,24 @@ const DashboardLayout = () => {
   // Quick Exit Safety Function
   const handleQuickExit = () => { window.location.replace("https://www.google.com"); };
 
-  // --- INSTALL BUTTON LOGIC ---
+  // Handle Login/Logout Logic
+  const handleAuthAction = () => {
+    if (isGuest) {
+      navigate('/auth'); // Go to Login
+    } else {
+      localStorage.removeItem('otsy_user'); // Log Out
+      navigate('/');
+    }
+  };
+
+  // Install Button Logic
   const handleInstallClick = () => {
     if (deferredPrompt) {
-      // Browser is ready, show native prompt
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choiceResult) => {
         setDeferredPrompt(null);
       });
     } else {
-      // Browser is NOT ready (or already installed / iOS), show instructions
       alert("To install Otsy:\n\n📱 iOS: Tap 'Share' → 'Add to Home Screen'\n💻 Desktop: Click the Install icon in your URL bar\n🤖 Android: Tap menu (⋮) → 'Install App'");
     }
   };
@@ -78,15 +96,20 @@ const DashboardLayout = () => {
             
             <div className="divider"></div>
             
-            {/* INSTALL BUTTON (Always Visible Now) */}
+            {/* Install Button */}
             <button onClick={handleInstallClick} className="nav-item install-btn">
               <Download size={20} /> <span>Install App</span>
             </button>
 
-            <NavLink to="/dashboard/settings" className={({isActive})=>`nav-item ${isActive?'active':''}`}><User size={20}/><span>Settings</span></NavLink>
+            {/* Profile Link changes text based on Guest status */}
+            <NavLink to="/dashboard/settings" className={({isActive})=>`nav-item ${isActive?'active':''}`}><User size={20}/><span>{isGuest ? 'Log In' : 'Profile'}</span></NavLink>
          </nav>
          
-         <button onClick={() => navigate('/')} className="logout-btn"><LogOut size={18}/><span>Exit</span></button>
+         {/* Dynamic Login/Logout Button */}
+         <button onClick={handleAuthAction} className="logout-btn">
+            {isGuest ? <LogIn size={18}/> : <LogOut size={18}/>}
+            <span>{isGuest ? 'Log In' : 'Log Out'}</span>
+         </button>
       </aside>
 
       {/* --- MAIN CONTENT --- */}
@@ -94,7 +117,10 @@ const DashboardLayout = () => {
         <header className="top-bar">
           <div style={{display:'flex', alignItems:'center'}}>
             <button className="toggle-sidebar" onClick={() => setSidebarOpen(!isSidebarOpen)}>{isSidebarOpen ? <X/> : <Menu/>}</button>
-            <div className="welcome-text"><h1>Good Morning, {userName}</h1><p>Let's take this one day at a time.</p></div>
+            <div className="welcome-text">
+               <h1>{isGuest ? "Welcome, Guest" : `Good Morning, ${userName}`}</h1>
+               <p>{isGuest ? "Join us to save your progress." : "Let's take this one day at a time."}</p>
+            </div>
           </div>
           
           <div className="header-actions">
@@ -120,7 +146,9 @@ const DashboardLayout = () => {
               )}
             </div>
 
-            <div className="profile-icon">{userName.charAt(0)}</div>
+            <div className="profile-icon" onClick={() => isGuest && navigate('/auth')}>
+               {userName.charAt(0)}
+            </div>
           </div>
         </header>
 

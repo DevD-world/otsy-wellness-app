@@ -1,8 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// Import Pages
 import Onboarding from './Onboarding';
+import LandingPage from './pages/LandingPage';
+import Auth from './pages/Auth';
 import DashboardLayout from './components/DashboardLayout';
+
+// Internal Pages
 import DashboardHome from './pages/DashboardHome';
 import Services from './pages/Services';
 import Library from './pages/Library';
@@ -12,15 +17,20 @@ import ArticleView from './pages/ArticleView';
 import Community from './pages/Community';
 import Glossary from './pages/Glossary';
 import ChatSession from './pages/ChatSession';
-
-// 1. IMPORT THE DOCTOR PROFILE HERE (This was likely missing)
-import DoctorProfile from './pages/DoctorProfile'; 
+import DoctorProfile from './pages/DoctorProfile';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* 1. START HERE: Onboarding Chat */}
         <Route path="/" element={<Onboarding />} />
+
+        {/* 2. THEN GO HERE: Public Home Page */}
+        <Route path="/home" element={<LandingPage />} />
+
+        {/* 3. Auth & Dashboard */}
+        <Route path="/auth" element={<Auth />} />
         
         <Route path="/dashboard" element={<DashboardLayout />}>
            <Route index element={<DashboardHome />} />
@@ -32,10 +42,7 @@ function App() {
            <Route path="glossary" element={<Glossary />} />
            <Route path="chat" element={<ChatSession />} />
            <Route path="article/:id" element={<ArticleView />} />
-           
-           {/* 2. ADD THE ROUTE HERE (Inside the Dashboard route) */}
            <Route path="doctor/:id" element={<DoctorProfile />} />
-
         </Route>
       </Routes>
     </BrowserRouter>

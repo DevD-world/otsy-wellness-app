@@ -1,0 +1,438 @@
+/* =========================================
+   1. GLOBAL LAYOUT & GRADIENT BACKGROUND
+========================================= */
+.landing-container {
+  /* Sky Blue to White Gradient */
+  background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 40%, #FFFFFF 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   2. NAVBAR
+========================================= */
+.landing-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo {
+  color: #01579b; /* Deep Blue */
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0;
+  text-shadow: 0 2px 5px rgba(255,255,255,0.5);
+  letter-spacing: -1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.login-link {
+  background: none;
+  border: none;
+  font-weight: 700;
+  color: #01579b;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.signup-btn {
+  background: #01579b;
+  color: white;
+  border: 2px solid white;
+  padding: 10px 25px;
+  border-radius: 30px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.signup-btn:hover {
+  background: white;
+  color: #01579b;
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   3. HERO SECTION (CENTERED)
+========================================= */
+.hero-section-centered {
+  padding: 40px 5% 0 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 90vh;
+}
+
+.hero-text-center {
+  max-width: 700px;
+  margin-bottom: 20px;
+  animation: fadeIn 0.8s ease;
+  position: relative;
+  z-index: 20; 
+}
+
+.badge-pill {
+  display: inline-block;
+  background: white;
+  color: #0277bd;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hero-text-center h1 {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  color: #013f6a;
+  margin: 0 0 20px 0;
+  font-weight: 800;
+  text-shadow: 0 2px 10px rgba(255,255,255,0.5);
+}
+
+.highlight-text { color: #0288d1; }
+
+.hero-text-center p {
+  font-size: 1.2rem;
+  color: #014675;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+.cta-primary {
+  background: #013f6a;
+  color: white;
+  padding: 15px 35px;
+  border-radius: 30px;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s;
+  margin: 0 auto;
+  box-shadow: 0 10px 20px rgba(1, 63, 106, 0.3);
+}
+
+.cta-primary:hover {
+  transform: translateY(-3px);
+  background: #02528a;
+}
+
+/* =========================================
+   4. INTERACTIVE SKY & OTTER
+========================================= */
+.interactive-sky-center {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  height: 550px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -30px; 
+}
+
+/* OTTER CHARACTER */
+.otter-center {
+  width: 280px;
+  z-index: 5;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1));
+}
+.main-otter-img { width: 100%; height: auto; }
+.floating { animation: floatInOut 6s ease-in-out infinite; }
+
+/* CLOUD BUTTONS WRAPPER */
+.clouds-layer-center {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; /* Let clicks pass through empty space */
+}
+
+.cloud-btn-wrapper {
+  position: absolute;
+  pointer-events: auto; /* Enable clicks on clouds */
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.cloud-btn-wrapper:hover { 
+  transform: scale(1.1) translateY(-5px); 
+  z-index: 30; 
+}
+
+/* --- THE FLUFFY CLOUD SHAPE (CSS ART) --- */
+.fluffy-cloud-shape {
+  position: relative;
+  background: #fff;
+  width: 130px; height: 70px;
+  border-radius: 50px;
+  display: flex; justify-content: center; align-items: center;
+  text-align: center; padding: 10px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1), inset 0 -5px 10px rgba(0,0,0,0.05);
+  border: 2px solid white;
+}
+
+/* Pseudo-elements for bumps */
+.fluffy-cloud-shape::before, .fluffy-cloud-shape::after {
+  content: ''; position: absolute; background: #fff; z-index: -1;
+}
+.fluffy-cloud-shape::before {
+  width: 60px; height: 60px; top: -25px; left: 15px; border-radius: 50%;
+}
+.fluffy-cloud-shape::after {
+  width: 70px; height: 70px; top: -20px; right: 15px; border-radius: 50%;
+}
+
+.fluffy-cloud-shape span {
+  position: relative; z-index: 2;
+  color: #0277bd; font-weight: 800; font-size: 0.8rem;
+  line-height: 1.2; text-transform: uppercase;
+}
+
+/* CLOUD POSITIONS */
+.pos-1 { top: 10%; left: 15%; animation: bobble 4s infinite ease-in-out; }
+.pos-2 { top: 12%; right: 15%; animation: bobble 5s infinite ease-in-out 0.5s; }
+.pos-3 { top: 45%; left: 5%; animation: bobble 4.5s infinite ease-in-out 1s; }
+.pos-4 { top: 42%; right: 5%; animation: bobble 5.5s infinite ease-in-out 0.2s; }
+.pos-5 { bottom: 10%; left: 50%; transform: translateX(-50%); animation: bobble 6s infinite ease-in-out 0.8s; }
+
+/* =========================================
+   5. MODALS (CLOUDS & FEATURES)
+========================================= */
+/* Common Overlay */
+.cloud-modal-overlay, .feature-modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(1, 87, 155, 0.5);
+  backdrop-filter: blur(8px); z-index: 200;
+  display: flex; justify-content: center; align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+/* --- CLOUD POPUP --- */
+.fluffy-modal-cloud {
+  position: relative; background: #fff;
+  width: 320px; padding: 40px 30px;
+  text-align: center;
+  border-radius: 60px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Giant Bumps for Modal */
+.fluffy-modal-cloud::before {
+  content: ''; position: absolute; z-index: -1; background: #fff;
+  width: 150px; height: 150px; border-radius: 50%; top: -60px; left: 20px;
+}
+.fluffy-modal-cloud::after {
+  content: ''; position: absolute; z-index: -1; background: #fff;
+  width: 140px; height: 140px; border-radius: 50%; bottom: -50px; right: 30px;
+}
+
+.fluffy-modal-cloud h3 { color: #0277bd; font-size: 1.5rem; margin: 0 0 10px 0; position: relative; z-index: 2; }
+.modal-divider { height: 3px; width: 50px; background: #e1f5fe; margin: 15px auto; position: relative; z-index: 2; }
+.fluffy-modal-cloud p { color: #455a64; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; position: relative; z-index: 2; }
+
+.cloud-cta-btn {
+  background: #0277bd; color: white; border: none; padding: 12px 30px;
+  border-radius: 30px; font-weight: bold; cursor: pointer; width: 100%; position: relative; z-index: 2;
+  box-shadow: 0 10px 20px rgba(2, 119, 189, 0.3);
+}
+
+.close-cloud, .close-feature {
+  position: absolute; top: 15px; right: 15px; background: #eceff1; border: none;
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer; color: #546e7a; z-index: 5;
+  display: flex; justify-content: center; align-items: center; transition: 0.2s;
+}
+.close-cloud:hover, .close-feature:hover { background: #cfd8dc; color: #333; }
+
+/* --- FEATURE POPUP --- */
+.feature-modal-card {
+  background: white;
+  width: 90%; max-width: 500px;
+  border-radius: 30px;
+  padding: 40px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-icon-header {
+  width: 80px; height: 80px; border-radius: 24px;
+  display: flex; justify-content: center; align-items: center;
+  margin: 0 auto 20px auto; font-size: 1.5rem;
+}
+/* Reusing colors */
+.modal-icon-header.blue { background: #e3f2fd; color: #1565c0; }
+.modal-icon-header.purple { background: #f3e5f5; color: #7b1fa2; }
+.modal-icon-header.green { background: #e8f5e9; color: #2e7d32; }
+.modal-icon-header.gold { background: #fff9c4; color: #f9a825; }
+
+.feature-modal-card h2 { color: #0f172a; font-size: 1.8rem; margin-bottom: 15px; }
+.feature-modal-desc { color: #475569; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px; }
+
+
+/* =========================================
+   6. FEATURES SECTION (INTERACTIVE CARDS)
+========================================= */
+.features-section { 
+  padding: 100px 5%; 
+  background: white; 
+  position: relative; 
+  z-index: 2; 
+  text-align: center;
+}
+
+.section-header { margin-bottom: 50px; }
+.section-header h3 { font-size: 2.2rem; color: #0f172a; margin: 0 0 10px 0; }
+.section-header p { color: #64748b; font-size: 1.1rem; }
+
+.features-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+  gap: 30px; 
+  max-width: 1200px; 
+  margin: 0 auto; 
+}
+
+.feature-card-interactive { 
+  background: white; 
+  padding: 35px 30px; 
+  border-radius: 24px; 
+  text-align: left; 
+  border: 1px solid #f1f5f9; 
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+.feature-card-interactive:hover { 
+  transform: translateY(-8px); 
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  border-color: #e2e8f0;
+}
+
+/* Icons */
+.f-icon-large { 
+  width: 60px; height: 60px; border-radius: 18px; 
+  display: flex; justify-content: center; align-items: center; 
+  transition: transform 0.3s;
+}
+.feature-card-interactive:hover .f-icon-large { transform: scale(1.1) rotate(5deg); }
+.f-icon-large.blue { background: #e3f2fd; color: #1565c0; }
+.f-icon-large.purple { background: #f3e5f5; color: #7b1fa2; }
+.f-icon-large.green { background: #e8f5e9; color: #2e7d32; }
+.f-icon-large.gold { background: #fff9c4; color: #f9a825; }
+
+.feature-card-interactive h3 { margin: 0 0 10px 0; color: #0f172a; font-size: 1.3rem; font-weight: 700; }
+.feature-card-interactive p { color: #64748b; line-height: 1.6; margin: 0; font-size: 1rem; flex-grow: 1; }
+
+.learn-more-link {
+  display: flex; align-items: center; gap: 5px; font-size: 0.9rem; font-weight: 700; color: #1565c0; margin-top: 10px;
+  opacity: 0; transform: translateX(-10px); transition: all 0.3s ease;
+}
+.feature-card-interactive:hover .learn-more-link { opacity: 1; transform: translateX(0); }
+
+/* =========================================
+   7. FAQ SECTION (SMOOTH ACCORDION)
+========================================= */
+.faq-section { 
+  padding: 100px 5%; 
+  background: #f8fafc; 
+  text-align: center; 
+}
+
+.faq-container { 
+  max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; 
+}
+
+.faq-item { 
+  background: white; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; 
+  transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.faq-item:hover { transform: translateY(-2px); border-color: #cbd5e1; }
+.faq-item.open { border-color: #1565c0; box-shadow: 0 10px 25px rgba(21, 101, 192, 0.1); }
+
+.faq-question { 
+  padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: white;
+}
+.faq-question h4 { margin: 0; font-size: 1.1rem; color: #1e293b; text-align: left; font-weight: 600; }
+
+.icon-wrapper { color: #1565c0; transition: transform 0.3s ease; display: flex; align-items: center; }
+
+.faq-answer { 
+  max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; background: #f1f5f9; 
+}
+.faq-item.open .faq-answer { max-height: 200px; transition: max-height 0.5s ease-in; }
+
+.answer-content { 
+  padding: 20px 25px; text-align: left; color: #475569; line-height: 1.6; font-size: 1rem; border-top: 1px solid #e2e8f0; 
+}
+
+/* =========================================
+   8. FOOTER & ANIMATIONS
+========================================= */
+.landing-footer { padding: 40px; text-align: center; background: white; color: #94a3b8; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes floatInOut { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+@keyframes bobble { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* =========================================
+   9. MOBILE RESPONSIVE
+========================================= */
+@media (max-width: 768px) {
+  .hero-text-center h1 { font-size: 2.5rem; }
+  .interactive-sky-center { height: 400px; }
+  .otter-center { width: 180px; }
+  /* Reposition clouds */
+  .pos-1 { top: 5%; left: 5%; }
+  .pos-2 { top: 5%; right: 5%; }
+  .pos-3, .pos-4 { display: none; }
+  .pos-5 { bottom: 5%; }
+  .fluffy-modal-cloud { width: 85%; padding: 30px; }
+  .feature-modal-card { width: 85%; padding: 25px; }
+}
+/* ... Keep all existing CSS ... */
+
+/* --- ADD THESE NEW COLOR CLASSES --- */
+
+/* Cyan (Breathing) */
+.f-icon-large.cyan { background: #e0f7fa; color: #00bcd4; }
+.modal-icon-header.cyan { background: #e0f7fa; color: #00bcd4; }
+
+/* Pink (Community) */
+.f-icon-large.pink { background: #fce4ec; color: #ec407a; }
+.modal-icon-header.pink { background: #fce4ec; color: #ec407a; }
+
+/* Existing Colors (Double check these are present) */
+.f-icon-large.blue { background: #e3f2fd; color: #1565c0; }
+.f-icon-large.purple { background: #f3e5f5; color: #7b1fa2; }
+.f-icon-large.green { background: #e8f5e9; color: #2e7d32; }
+.f-icon-large.gold { background: #fff9c4; color: #f9a825; }
+
+/* ... Rest of CSS stays same ... */

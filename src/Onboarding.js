@@ -1,167 +1,142 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Send, ArrowRight, MessageCircle } from 'lucide-react';
 import './Onboarding.css';
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const chatEndRef = useRef(null);
-
-  const [step, setStep] = useState('welcome'); 
-  const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
   
-  // Data State
-  const [userData, setUserData] = useState({ name: '', age: '', gender: '', responses: [] });
-  const [chatPhase, setChatPhase] = useState(0); 
-  // 0=Name, 1=Age, 2=Gender, 3-5=Compulsory Qs, 6-7=Optional Qs
+  // UI State
+  const [showChat, setShowChat] = useState(false); // Toggle between Video and Chat
+  
+  // Chat State
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [step, setStep] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
+  
+  // Refs
+  const messagesEndRef = useRef(null);
+  const hasStartedRef = useRef(false); // FIX: Prevents double posting
 
-  const mentalHealthQuestions = [
-    { text: "How have you been sleeping lately?", optional: false },      
-    { text: "Have you felt anxious without a clear reason?", optional: false }, 
-    { text: "Do you have a support system to talk to?", optional: false }, 
-    { text: "On a scale of 1-10, rate your daily stress?", optional: true }, 
-    { text: "Is there a specific event that triggered this?", optional: true } 
+  const questions = [
+    "Hi! I'm Otsy. What should I call you?",
+    "Nice to meet you. How are you feeling today?",
+    "What brings you here? (e.g. Anxiety, Sleep, Just curious)"
   ];
 
-  const handleStart = () => {
-    setStep('chat');
-    addBotMessage("Hello! I am Otsy. I'm here to listen. First, what is your name?");
-  };
-
-  const handleInputSubmit = () => {
-    if (!inputValue.trim()) return;
-    addUserMessage(inputValue);
-    const currentInput = inputValue;
-    setInputValue(''); 
-
-    if (chatPhase === 0) { // NAME
-      setUserData(prev => ({ ...prev, name: currentInput }));
-      setTimeout(() => {
-        addBotMessage(`Hi ${currentInput}, it's nice to meet you. May I ask how old you are?`);
-        setChatPhase(1);
-      }, 600);
-    } 
-    else if (chatPhase === 1) { // AGE
-      setUserData(prev => ({ ...prev, age: currentInput }));
-      setTimeout(() => {
-        addBotMessage("Thank you. And how do you identify?");
-        setChatPhase(2); 
-      }, 600);
-    }
-    else if (chatPhase >= 3) { // QUESTIONNAIRE
-      handleQuestionResponse(currentInput);
+  // 1. Start Chat Trigger
+  const startChat = () => {
+    setShowChat(true);
+    
+    // Only send the first message if we haven't already
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true;
+      addBotMessage(questions[0]);
     }
   };
 
-  const handleGenderSelect = (gender) => {
-    addUserMessage(gender);
-    setUserData(prev => ({ ...prev, gender }));
+  // 2. Auto-scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  const addBotMessage = (text) => {
+    setIsTyping(true);
     setTimeout(() => {
-      addBotMessage("Thanks for sharing. I'm going to ask you 5 quick questions.");
-      setTimeout(() => askNextQuestion(0), 1000); 
-    }, 600);
+      setMessages(prev => [...prev, { id: Date.now(), sender: 'bot', text }]);
+      setIsTyping(false);
+    }, 1000);
   };
 
-  const askNextQuestion = (qArrayIndex) => {
-    const phaseIndex = qArrayIndex + 3;
-    setChatPhase(phaseIndex);
+  const handleSend = (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
 
-    if (qArrayIndex < mentalHealthQuestions.length) {
-      addBotMessage(mentalHealthQuestions[qArrayIndex].text);
+    // Add User Message
+    const userText = input;
+    setMessages(prev => [...prev, { id: Date.now(), sender: 'user', text: userText }]);
+    setInput('');
+
+    // Logic for next step
+    if (step < questions.length - 1) {
+      setStep(prev => prev + 1);
+      addBotMessage(questions[step + 1]);
     } else {
-      finishOnboarding();
+      // Finished
+      addBotMessage("Thanks! Taking you to the home page...");
+      setTimeout(() => navigate('/home'), 2000);
     }
   };
 
-  const handleQuestionResponse = (response) => {
-    const qIndex = chatPhase - 3;
-    const newResponses = [...userData.responses, { q: mentalHealthQuestions[qIndex].text, a: response }];
-    setUserData(prev => ({ ...prev, responses: newResponses }));
-    setTimeout(() => askNextQuestion(qIndex + 1), 600);
-  };
-
-  const handleSkip = () => {
-    addUserMessage("Skipped");
-    const currentQIndex = chatPhase - 3;
-    setTimeout(() => askNextQuestion(currentQIndex + 1), 600);
-  };
-
-  const finishOnboarding = () => {
-    addBotMessage("Thank you. I've prepared your dashboard.");
-    setTimeout(() => {
-      localStorage.setItem('otsy_user', JSON.stringify(userData));
-      navigate('/dashboard');
-    }, 2000);
-  };
-
-  const addBotMessage = (text) => setMessages(prev => [...prev, { sender: 'otsy', text }]);
-  const addUserMessage = (text) => setMessages(prev => [...prev, { sender: 'user', text }]);
-  const handleQuickExit = () => {
-  window.location.replace("https://www.google.com");
-};
-
-  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-
+  // --- RENDER ---
   return (
     <div className="onboarding-container">
-      <div className={`avatar-container ${step === 'chat' ? 'minimized' : 'full'}`}>
-         <video autoPlay loop muted playsInline><source src="/ootsy-welcome.mp4" type="video/mp4" /></video>
-      </div>
-      <button 
-      onClick={handleQuickExit} 
-      style={{
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        background: '#d32f2f',
-        color: 'white',
-        border: '2px solid white',
-        padding: '10px 20px',
-        borderRadius: '30px',
-        fontWeight: 'bold',
-        zIndex: 9999,
-        cursor: 'pointer'
-      }}
-    >
-      Quick Exit
-    </button>
+      
+      {/* 1. BACKGROUND VIDEO (Always visible) */}
+      <video autoPlay loop muted playsInline className="bg-video">
+        {/* Make sure 'ootsy-welcome.mp4' is in your PUBLIC folder, or use 'rain.mp4' */}
+        <source src="/ootsy-welcome.mp4" type="video/mp4" />
+        <source src="/rain.mp4" type="video/mp4" /> 
+      </video>
 
-      {step === 'welcome' && (
-        <div className="welcome-overlay">
-          <h1>Welcome to Otsy</h1>
-          <p>Your personal companion for mental wellness.</p>
-          <button onClick={handleStart} className="start-btn">Get Started</button>
+      {/* Dark Overlay */}
+      <div className="video-overlay"></div>
+
+      {/* 2. WELCOME SCREEN (Visible only if Chat is NOT active) */}
+      {!showChat && (
+        <div className="welcome-content">
+          <h1 className="logo-large">Otsy.</h1>
+          <p className="subtitle">Your personal AI wellness companion.</p>
+          <button className="get-started-btn" onClick={startChat}>
+            Get Started <ArrowRight size={20} />
+          </button>
         </div>
       )}
 
-      {step === 'chat' && (
-        <div className="chat-interface">
-          <div className="messages-area">
-            {messages.map((msg, i) => (
-              <div key={i} className={`msg-row ${msg.sender}`}><div className="bubble">{msg.text}</div></div>
-            ))}
-            <div ref={chatEndRef} />
+      {/* 3. CHAT INTERFACE (Visible when Get Started is clicked) */}
+      {showChat && (
+        <div className="chat-layer">
+          {/* Small Otsy Header */}
+          <div className="chat-header-small">
+            <div className="otsy-avatar-small">O</div>
+            <span>Chatting with Otsy</span>
+            <button className="skip-text" onClick={() => navigate('/home')}>Skip</button>
           </div>
-          <div className="input-area">
-            {chatPhase === 2 ? (
-              <div className="button-group">
-                <button onClick={() => handleGenderSelect('Male')}>Male</button>
-                <button onClick={() => handleGenderSelect('Female')}>Female</button>
-                <button onClick={() => handleGenderSelect('Other')}>Other</button>
-              </div>
-            ) : (
-              <div className="text-group">
-                 <input type={chatPhase === 1 ? "number" : "text"} value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleInputSubmit()} placeholder="Type here..." autoFocus />
-                 <button onClick={handleInputSubmit} className="send-icon-btn">➤</button>
-              </div>
-            )}
-            {(chatPhase === 6 || chatPhase === 7) && (
-              <button onClick={handleSkip} className="skip-btn">Skip this question</button>
-            )}
+
+          <div className="chat-box">
+            <div className="messages-area">
+              {messages.map(msg => (
+                <div key={msg.id} className={`message-row ${msg.sender}`}>
+                  {msg.sender === 'bot' && <div className="bot-avatar">O</div>}
+                  <div className="message-bubble">{msg.text}</div>
+                </div>
+              ))}
+              {isTyping && (
+                <div className="message-row bot">
+                  <div className="bot-avatar">O</div>
+                  <div className="message-bubble typing"><span></span><span></span><span></span></div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <form className="input-area" onSubmit={handleSend}>
+              <input 
+                type="text" 
+                placeholder="Type your answer..." 
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                autoFocus
+              />
+              <button type="submit" disabled={!input.trim()}><Send size={20}/></button>
+            </form>
           </div>
         </div>
       )}
+
     </div>
   );
 };
+
 export default Onboarding;
