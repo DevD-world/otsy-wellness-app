@@ -117,3 +117,51 @@
 .locked { opacity: 0.7; }
 .locked .badge-icon { background: #eceff1; color: #90a4ae; }
 .locked h4 { color: #546e7a; }
+
+.profile-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+.profile-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 40px; }
+.avatar-large { width: 100px; height: 100px; background: #1565c0; color: white; border-radius: 50%; font-size: 3rem; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 10px 20px rgba(21, 101, 192, 0.2); }
+.profile-header h2 { margin: 0; color: #1e293b; }
+.profile-header p { color: #64748b; margin: 5px 0 15px 0; }
+.login-btn-profile { background: #1565c0; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 40px; }
+.stat-card { background: white; padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+.stat-icon { margin-bottom: 10px; }
+.stat-icon.gold { color: #f9a825; } .stat-icon.blue { color: #1565c0; } .stat-icon.purple { color: #7b1fa2; }
+.stat-card h3 { margin: 0; font-size: 1.5rem; color: #333; }
+.stat-card p { margin: 5px 0 0 0; font-size: 0.85rem; color: #666; }
+
+.section-title { color: #334155; margin-bottom: 15px; }
+
+.mood-calendar-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+.mood-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.mood-dot { width: 100%; aspect-ratio: 1; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+.mood-dot:hover { transform: scale(1.2); }
+
+.mood-legend { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; font-size: 0.8rem; color: #64748b; padding-top: 15px; border-top: 1px solid #eee; }
+.mood-legend span { display: flex; align-items: center; gap: 5px; }
+.mood-legend .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.logout-big-btn { background: #ffebee; color: #c62828; border: none; padding: 15px; width: 100%; border-radius: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 40px; }
+.logout-big-btn:hover { background: #ffcdd2; }
+
+/* Appointments List */
+.appointments-list { display: flex; flex-direction: column; gap: 15px; }
+
+.app-card {
+  background: white; padding: 15px; border-radius: 16px; border: 1px solid #f1f5f9;
+  display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.app-doc-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+.app-details { flex-grow: 1; }
+.app-details h4 { margin: 0; color: #333; }
+.app-details p { margin: 2px 0 5px 0; font-size: 0.85rem; color: #1565c0; }
+.app-time { display: flex; gap: 15px; font-size: 0.85rem; color: #64748b; font-weight: 500; }
+
+.status-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
+
+.empty-apps { text-align: center; padding: 30px; background: #f8fafc; border-radius: 16px; color: #94a3b8; }
+.empty-apps button { background: #1565c0; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-top: 10px; }

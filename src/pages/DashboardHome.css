@@ -66,3 +66,37 @@
   .top-grid-expanded { grid-template-columns: 1fr; height: auto; }
   .chart-section { height: 300px; }
 }
+
+.dashboard-home { padding: 20px; max-width: 1000px; margin: 0 auto; }
+
+.welcome-banner { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.welcome-banner h2 { font-size: 1.8rem; color: #1e293b; margin: 0; }
+.welcome-banner p { color: #64748b; margin: 5px 0 0 0; }
+.streak-badge { background: #fff3e0; color: #e65100; padding: 8px 15px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+
+.checkin-section { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: center; margin-bottom: 30px; border: 1px solid #f1f5f9; }
+.checkin-section h3 { margin-top: 0; color: #334155; }
+
+.mood-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+.m-btn { border: none; background: #f8fafc; padding: 15px 20px; border-radius: 15px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.2s; min-width: 80px; }
+.m-btn:hover { transform: translateY(-5px); }
+
+/* Mood Colors */
+.m-btn.bad:hover { background: #ffebee; color: #c62828; }
+.m-btn.low:hover { background: #fff3e0; color: #ef6c00; }
+.m-btn.mid:hover { background: #fffde7; color: #f9a825; }
+.m-btn.good:hover { background: #e3f2fd; color: #1565c0; }
+.m-btn.great:hover { background: #e8f5e9; color: #2e7d32; }
+
+.mood-feedback { animation: fadeIn 0.5s ease; color: #2e7d32; font-weight: bold; }
+
+.quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.action-card { padding: 25px; border-radius: 20px; color: white; cursor: pointer; transition: transform 0.2s; }
+.action-card:hover { transform: translateY(-3px); }
+.action-card.purple { background: linear-gradient(135deg, #ab47bc, #8e24aa); }
+.action-card.blue { background: linear-gradient(135deg, #42a5f5, #1976d2); }
+.action-card.green { background: linear-gradient(135deg, #66bb6a, #388e3c); }
+.action-card h4 { margin: 10px 0 5px 0; font-size: 1.2rem; }
+.action-card p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+
+.quote-banner { background: #37474f; color: white; padding: 30px; border-radius: 20px; text-align: center; font-style: italic; font-size: 1.1rem; }

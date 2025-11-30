@@ -1,138 +1,204 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, Trash2 } from 'lucide-react';
 import './ChatSession.css';
 
+// FIREBASE
+import { auth, db } from '../firebase';
+import { doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+
 const ChatSession = () => {
+  const [user, setUser] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'bot', text: "Hi again. I'm listening. How can I support you right now?" }
-  ]);
-
-  // Quick Chips
-  const quickTopics = [
-    "I feel anxious", 
-    "I can't sleep", 
-    "I lack motivation", 
-    "I'm just sad",
-    "Tell me a joke"
-  ];
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
-
-  // --- EXPANDED AI LOGIC ---
-  const getBotResponse = (text) => {
+  // --- 1. OTSY'S BRAIN (The Response Logic) ---
+  const generateResponse = (text) => {
     const lower = text.toLowerCase();
     
-    // 1. Anxiety / Stress
-    if (lower.includes('anx') || lower.includes('panic') || lower.includes('stress')) {
-      return "I hear you. Anxiety can feel overwhelming, but it will pass. Try this: Look around and name 3 things you can see. Grounding yourself helps stop the cycle.";
-    }
-    // 2. Sleep
-    if (lower.includes('sleep') || lower.includes('tired') || lower.includes('awake')) {
-      return "Racing thoughts often keep us awake. Have you tried the 4-7-8 breathing exercise in the Tools section? It signals your nervous system to rest.";
-    }
-    // 3. Sadness
-    if (lower.includes('sad') || lower.includes('lonely') || lower.includes('cry')) {
-      return "It's okay to feel this way. You don't always have to be strong. I'm here sitting with you in this feeling. You are not alone.";
-    }
-    // 4. Motivation
-    if (lower.includes('motivation') || lower.includes('stuck') || lower.includes('lazy')) {
-      return "Motivation follows action, not the other way around. Don't worry about the big picture. Just do one tiny thing for 2 minutes. What's one small step you can take?";
-    }
-    // 5. Jokes / Light
-    if (lower.includes('joke') || lower.includes('laugh')) {
-      const jokes = [
-        "Why did the scarecrow win an award? Because he was outstanding in his field! 🌾",
-        "What do you call a fake noodle? An impasta! 🍝",
-        "Why don't skeletons fight each other? They don't have the guts. 💀"
-      ];
-      return jokes[Math.floor(Math.random() * jokes.length)];
-    }
+    if (lower.includes('anxi') || lower.includes('panic') || lower.includes('scared') || lower.includes('fear')) 
+      return "I hear you. Anxiety is tough, but it will pass. Have you tried the 4-7-8 breathing exercise in the Tools section? It lowers cortisol instantly.";
+    
+    if (lower.includes('sad') || lower.includes('depress') || lower.includes('cry') || lower.includes('lonely')) 
+      return "I'm sorry you're feeling this way. Remember, emotions are like weather—they come and go. Would you like to journal about what's triggering this?";
+    
+    if (lower.includes('sleep') || lower.includes('tired') || lower.includes('insomnia') || lower.includes('awake')) 
+      return "Rest is vital for your mind. Try listening to the 'Brown Noise' or 'Rain' soundscapes in the Tools tab. They are great for quieting a racing mind.";
+    
+    if (lower.includes('angry') || lower.includes('mad') || lower.includes('hate')) 
+      return "It sounds like you're carrying a lot of frustration. That's valid. Try the 'Box Breathing' technique or write a 'burn letter' (write it and delete it) in the Journal.";
 
-    // Default Fallback
-    return "Thank you for sharing that with me. Writing it down is the first step to processing it. Tell me more.";
+    if (lower.includes('thank') || lower.includes('good') || lower.includes('ok')) 
+      return "You're very welcome! I'm here whenever you need a safe space to talk. 💙";
+    
+    if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) 
+      return "Hello! How is your mental space today?";
+
+    return "Thank you for sharing that. How does that make you feel right now? I'm listening.";
   };
 
-  const handleSend = (textOverride) => {
-    // Check if we are sending text from input or a clicked chip
-    const textToSend = typeof textOverride === 'string' ? textOverride : input;
+  // --- 2. LOAD CHAT HISTORY ---
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
 
-    if (!textToSend.trim()) return;
+      if (currentUser) {
+        // --- LOGGED IN: Real-time Firebase Listener ---
+        const docRef = doc(db, "chats", currentUser.uid);
+        
+        // Check if chat exists, if not create it
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+          const welcomeMsg = { id: 1, text: "Hi! I'm Otsy. I'm here to listen. How was your day?", sender: 'bot', timestamp: Date.now() };
+          await setDoc(docRef, { history: [welcomeMsg] });
+        }
 
-    // 1. Add User Message
-    const userMsg = { id: Date.now(), sender: 'user', text: textToSend };
+        // Listen for updates
+        const unsubChat = onSnapshot(docRef, (snapshot) => {
+          if (snapshot.exists()) {
+            setMessages(snapshot.data().history || []);
+          }
+        });
+        return () => unsubChat();
+
+      } else {
+        // --- GUEST: Load from LocalStorage ---
+        const localChat = JSON.parse(localStorage.getItem('otsy_guest_chat') || '[]');
+        if (localChat.length === 0) {
+          const welcomeMsg = { id: 1, text: "Hi! I'm Otsy. (Guest Mode). How are you?", sender: 'bot', timestamp: Date.now() };
+          setMessages([welcomeMsg]);
+          localStorage.setItem('otsy_guest_chat', JSON.stringify([welcomeMsg]));
+        } else {
+          setMessages(localChat);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // --- 3. AUTO SCROLL ---
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  // --- 4. HANDLE SEND (THE FIX) ---
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userText = input;
+    setInput(''); // Clear input immediately
+    setIsTyping(true); // Show typing animation
+
+    // 1. Create User Message Object
+    const userMsg = { 
+      id: Date.now(), 
+      text: userText, 
+      sender: 'user', 
+      timestamp: Date.now() 
+    };
+
+    // 2. Optimistic Update (Show message immediately on screen)
+    // We use a functional update to ensure we have the latest state
     setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
 
-    // 2. Simulate AI Delay
-    setTimeout(() => {
-      const botText = getBotResponse(textToSend);
-      const botMsg = { id: Date.now() + 1, sender: 'bot', text: botText };
+    // 3. Save User Message to DB
+    await saveMessageToStorage(userMsg);
+
+    // 4. Trigger Bot Response
+    setTimeout(async () => {
+      const botText = generateResponse(userText);
+      const botMsg = { 
+        id: Date.now() + 1, 
+        text: botText, 
+        sender: 'bot', 
+        timestamp: Date.now() 
+      };
+
+      // Update UI
       setMessages(prev => [...prev, botMsg]);
-      setIsTyping(false);
+      setIsTyping(false); // STOP TYPING ANIMATION
+
+      // Save Bot Message to DB
+      await saveMessageToStorage(botMsg);
+      
     }, 1500);
   };
 
+  // Helper to save to either Firebase or LocalStorage
+  const saveMessageToStorage = async (msg) => {
+    if (user) {
+      // Firebase
+      const chatRef = doc(db, "chats", user.uid);
+      try {
+        await updateDoc(chatRef, { history: arrayUnion(msg) });
+      } catch (err) {
+        console.error("Error saving to cloud:", err);
+      }
+    } else {
+      // LocalStorage
+      const currentHistory = JSON.parse(localStorage.getItem('otsy_guest_chat') || '[]');
+      const newHistory = [...currentHistory, msg];
+      localStorage.setItem('otsy_guest_chat', JSON.stringify(newHistory));
+    }
+  };
+
+  const clearChat = async () => {
+    if(window.confirm("Clear conversation history?")) {
+      const resetMsg = [{ id: Date.now(), text: "Chat cleared. How can I help?", sender: 'bot', timestamp: Date.now() }];
+      setMessages(resetMsg);
+      if(user) {
+        await setDoc(doc(db, "chats", user.uid), { history: resetMsg });
+      } else {
+        localStorage.setItem('otsy_guest_chat', JSON.stringify(resetMsg));
+      }
+    }
+  };
+
   return (
-    <div className="chat-session-container">
-      
-      {/* Messages Area */}
-      <div className="chat-feed">
+    <div className="chat-page-container">
+      <div className="chat-top-bar">
+        <div className="chat-info">
+          <div className="bot-avatar-header">O</div>
+          <div>
+            <h3>Otsy</h3>
+            <span className="status">Always here to listen</span>
+          </div>
+        </div>
+        <button className="clear-chat-btn" onClick={clearChat} title="Clear History">
+          <Trash2 size={20} />
+        </button>
+      </div>
+
+      <div className="chat-messages-area">
         {messages.map((msg) => (
           <div key={msg.id} className={`chat-row ${msg.sender}`}>
-            <div className="chat-avatar">
-              {msg.sender === 'bot' ? <Bot size={20}/> : <User size={20}/>}
-            </div>
+            {msg.sender === 'bot' && <div className="chat-avatar"><Bot size={18}/></div>}
             <div className="chat-bubble">
               {msg.text}
             </div>
           </div>
         ))}
-        
         {isTyping && (
           <div className="chat-row bot">
-            <div className="chat-avatar"><Bot size={20}/></div>
+            <div className="chat-avatar"><Bot size={18}/></div>
             <div className="chat-bubble typing"><span></span><span></span><span></span></div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggestion Chips */}
-      {!isTyping && (
-        <div className="chips-container">
-          {quickTopics.map((topic, i) => (
-            <button key={i} className="chip-btn" onClick={() => handleSend(topic)}>
-              <Sparkles size={12}/> {topic}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Input Area */}
-      <form className="chat-input-area" onSubmit={(e) => { e.preventDefault(); handleSend(); }}>
+      <form className="chat-input-area" onSubmit={handleSend}>
         <input 
           type="text" 
-          placeholder="Type your message..." 
+          placeholder="Type a message..." 
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          autoFocus
         />
-        <button type="submit" disabled={!input.trim()}>
-          <Send size={20} />
-        </button>
+        <button type="submit" disabled={!input.trim()}><Send size={20}/></button>
       </form>
-
     </div>
   );
 };

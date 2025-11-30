@@ -1,66 +1,100 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wind, PenTool, Sparkles, Save, Trash2, Check, Volume2, Play, Pause, Sliders } from 'lucide-react';
+import { Wind, PenTool, Sparkles, Save, Trash2, Check, Sliders, Play, Pause } from 'lucide-react';
 import './Tools.css';
 
-// Helper Component for a Single Sound Track
+// --- FIREBASE IMPORTS ---
+import { auth, db } from '../firebase'; 
+import { doc, getDoc, setDoc } from "firebase/firestore"; 
+import { onAuthStateChanged } from "firebase/auth";
+
+// --- SOUND TRACK COMPONENT (Keep as is) ---
 const SoundTrack = ({ name, url, icon }) => {
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const audioRef = useRef(new Audio(url));
 
-  useEffect(() => {
-    audioRef.current.loop = true;
-    return () => audioRef.current.pause();
-  }, []);
-
-  useEffect(() => {
-    if (playing) audioRef.current.play();
-    else audioRef.current.pause();
-  }, [playing]);
-
-  useEffect(() => {
-    audioRef.current.volume = volume;
-  }, [volume]);
+  useEffect(() => { audioRef.current.loop = true; return () => audioRef.current.pause(); }, []);
+  useEffect(() => { if (playing) audioRef.current.play(); else audioRef.current.pause(); }, [playing]);
+  useEffect(() => { audioRef.current.volume = volume; }, [volume]);
 
   return (
     <div className="sound-track">
-      <div className="track-info">
-        <span className="track-icon">{icon}</span>
-        <span className="track-name">{name}</span>
-      </div>
+      <div className="track-info"><span className="track-icon">{icon}</span><span className="track-name">{name}</span></div>
       <div className="track-controls">
-        <button 
-          className={`play-toggle ${playing ? 'active' : ''}`} 
-          onClick={() => setPlaying(!playing)}
-        >
-          {playing ? <Pause size={16}/> : <Play size={16}/>}
-        </button>
-        <input 
-          type="range" min="0" max="1" step="0.01" 
-          value={volume} 
-          onChange={(e) => setVolume(parseFloat(e.target.value))}
-          disabled={!playing}
-          className="volume-slider"
-        />
+        <button className={`play-toggle ${playing ? 'active' : ''}`} onClick={() => setPlaying(!playing)}>{playing ? <Pause size={16}/> : <Play size={16}/>}</button>
+        <input type="range" min="0" max="1" step="0.01" value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} disabled={!playing} className="volume-slider"/>
       </div>
     </div>
   );
 };
 
 const Tools = () => {
-  // --- BREATHING STATE ---
+  // State
   const [isBreathing, setIsBreathing] = useState(false);
   const [breathPhase, setBreathPhase] = useState('idle'); 
   const [instruction, setInstruction] = useState('Ready');
-
-  // --- JOURNAL STATE ---
   const [entry, setEntry] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
-
-  // --- AFFIRMATION STATE ---
   const [quote, setQuote] = useState("You are stronger than you know.");
   
-  // --- BREATHING LOGIC ---
+  // User State
+  const [user, setUser] = useState(null);
+
+  // 1. CHECK LOGIN STATUS
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        // If logged in, load from Cloud
+        loadFromCloud(currentUser.uid);
+      } else {
+        // If guest, load from LocalStorage
+        const localData = localStorage.getItem('otsy_journal_v1');
+        if (localData) setEntry(localData);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 2. LOAD FROM CLOUD FUNCTION
+  const loadFromCloud = async (uid) => {
+    try {
+      const docRef = doc(db, "journals", uid); // Collection: journals, ID: UserID
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setEntry(docSnap.data().text);
+      }
+    } catch (error) {
+      console.error("Error loading journal:", error);
+    }
+  };
+
+  // 3. SAVE FUNCTION (Handles both Cloud & Local)
+  const handleSave = async () => {
+    setSaveStatus('Saving...');
+    
+    if (user) {
+      // SAVE TO FIREBASE
+      try {
+        await setDoc(doc(db, "journals", user.uid), {
+          text: entry,
+          lastUpdated: new Date()
+        });
+        setSaveStatus('Saved to Cloud!');
+      } catch (error) {
+        console.error("Error saving:", error);
+        setSaveStatus('Error saving');
+      }
+    } else {
+      // SAVE TO LOCAL STORAGE
+      localStorage.setItem('otsy_journal_v1', entry);
+      setSaveStatus('Saved Locally!');
+    }
+    
+    setTimeout(() => setSaveStatus(''), 2000);
+  };
+
+  // Breathing Logic (Keep existing)
   useEffect(() => {
     let t = [];
     if (isBreathing) {
@@ -77,13 +111,6 @@ const Tools = () => {
     return () => t.forEach(clearTimeout);
   }, [isBreathing]);
 
-  // --- JOURNAL LOGIC ---
-  const handleSave = () => {
-    localStorage.setItem('otsy_journal_v1', entry);
-    setSaveStatus('Saved!'); setTimeout(() => setSaveStatus(''), 2000);
-  };
-  useEffect(() => { const s = localStorage.getItem('otsy_journal_v1'); if(s) setEntry(s); }, []);
-
   return (
     <div className="tools-container">
       <div className="tools-header">
@@ -93,12 +120,9 @@ const Tools = () => {
 
       <div className="tools-grid">
         
-        {/* 1. ADVANCED SOUND MIXER */}
+        {/* MIXER */}
         <div className="tool-card sound-mixer-card">
-          <div className="card-top">
-            <Sliders className="icon-green" />
-            <h3>Focus Mixer</h3>
-          </div>
+          <div className="card-top"><Sliders className="icon-green" /><h3>Focus Mixer</h3></div>
           <p className="tool-sub">Create your perfect environment.</p>
           <div className="mixer-grid">
             <SoundTrack name="Heavy Rain" icon="🌧️" url="https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg" />
@@ -108,7 +132,7 @@ const Tools = () => {
           </div>
         </div>
 
-        {/* 2. BREATHING */}
+        {/* BREATHING */}
         <div className="tool-card breathing-card">
           <div className="card-top"><Wind className="icon-purple" /><h3>Breathing</h3></div>
           <div className="circle-container">
@@ -120,20 +144,28 @@ const Tools = () => {
           </button>
         </div>
 
-        {/* 3. JOURNAL */}
+        {/* JOURNAL (Updated Logic) */}
         <div className="tool-card journal-card">
           <div className="card-top">
-            <PenTool className="icon-blue" /><h3>Journal</h3>
-            {saveStatus && <span className="saved-badge"><Check size={14}/> Saved</span>}
+            <PenTool className="icon-blue" />
+            <h3>{user ? "Cloud Journal" : "Local Journal"}</h3>
+            {saveStatus && <span className="saved-badge"><Check size={14}/> {saveStatus}</span>}
           </div>
-          <textarea className="journal-input" placeholder="Write here..." value={entry} onChange={(e) => setEntry(e.target.value)} />
+          
+          <textarea 
+            className="journal-input" 
+            placeholder={user ? "Write here... (Synced to cloud)" : "Write here... (Saved on this device only)"} 
+            value={entry} 
+            onChange={(e) => setEntry(e.target.value)} 
+          />
+          
           <div className="button-row">
             <button className="save-btn" onClick={handleSave}><Save size={16}/> Save</button>
             <button className="clear-btn" onClick={() => setEntry('')}><Trash2 size={16}/></button>
           </div>
         </div>
 
-        {/* 4. AFFIRMATION */}
+        {/* AFFIRMATION */}
         <div className="tool-card quote-card">
           <div className="card-top"><Sparkles className="icon-gold" /><h3>Daily Quote</h3></div>
           <div className="quote-display">"{quote}"</div>

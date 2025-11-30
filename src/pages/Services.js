@@ -1,177 +1,185 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // 1. Add useLocation
-import { Star, MapPin, Calendar, CheckCircle, X, Trash2 } from 'lucide-react';
-import './Services.css';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Star, MapPin, Calendar, Clock, CheckCircle, Video, X } from 'lucide-react';
+import './Services.css'; // We will update this next
+
+// FIREBASE
+import { auth, db } from '../firebase';
+import { collection, addDoc } from "firebase/firestore";
+
+const doctors = [
+  { id: 1, name: "Dr. Sarah Jenkins", specialty: "Anxiety & Stress", rating: 4.9, reviews: 120, image: "https://randomuser.me/api/portraits/women/44.jpg", price: "$50/hr" },
+  { id: 2, name: "Dr. Michael Chen", specialty: "Depression & Trauma", rating: 4.8, reviews: 85, image: "https://randomuser.me/api/portraits/men/32.jpg", price: "$60/hr" },
+  { id: 3, name: "Emily Carter, LMFT", specialty: "Relationship Counseling", rating: 5.0, reviews: 200, image: "https://randomuser.me/api/portraits/women/68.jpg", price: "$55/hr" },
+  { id: 4, name: "Dr. James Wilson", specialty: "Child Psychology", rating: 4.7, reviews: 90, image: "https://randomuser.me/api/portraits/men/45.jpg", price: "$70/hr" },
+];
 
 const Services = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // 2. Access state passed from Doctor Profile
-
-  const [filter, setFilter] = useState('All');
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [bookingStep, setBookingStep] = useState('form'); 
-  const [appointments, setAppointments] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   
-  // 3. New State to hold the pre-filled time
-  const [formTime, setFormTime] = useState('09:00 AM'); 
+  // Booking State
+  const [selectedDoc, setSelectedDoc] = useState(null); // The doctor being booked
+  const [bookingDate, setBookingDate] = useState('');
+  const [bookingTime, setBookingTime] = useState('');
+  const [isBooking, setIsBooking] = useState(false); // Controls Modal visibility
+  const [bookingStatus, setBookingStatus] = useState('idle'); // idle | loading | success
 
-  const doctorsData = [
-    { id: 1, name: "Dr. Sarah Jenkins", role: "Psychiatrist", rating: 4.9, location: "New York, NY", available: "Today", img: "SJ" },
-    { id: 2, name: "Dr. Aravind Patel", role: "Psychologist", rating: 4.8, location: "Online", available: "Tomorrow", img: "AP" },
-    { id: 3, name: "Emma Wood", role: "Yoga Therapist", rating: 5.0, location: "Austin, TX", available: "Today", img: "EW" },
-    { id: 4, name: "Dr. James Carter", role: "Psychiatrist", rating: 4.7, location: "Chicago, IL", available: "Next Week", img: "JC" },
-    { id: 5, name: "Lisa Wong", role: "Yoga Therapist", rating: 4.9, location: "Online", available: "Today", img: "LW" },
-    { id: 6, name: "Dr. Marcus Reid", role: "Psychologist", rating: 4.8, location: "Seattle, WA", available: "Tomorrow", img: "MR" }
-  ];
+  // Filter Doctors
+  const filteredDoctors = doctors.filter(doc => 
+    doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    doc.specialty.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const filteredDoctors = filter === 'All' ? doctorsData : doctorsData.filter(doc => doc.role.includes(filter));
-
-  // --- LOAD APPOINTMENTS ---
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('otsy_appointments') || '[]');
-    setAppointments(saved);
-  }, []);
-
-  // --- 4. CHECK FOR INCOMING BOOKING REQUEST ---
-  useEffect(() => {
-    if (location.state) {
-      const { preSelectedDoctorId, preSelectedTime } = location.state;
-      
-      if (preSelectedDoctorId) {
-        const docToBook = doctorsData.find(d => d.id === preSelectedDoctorId);
-        if (docToBook) {
-          setSelectedDoctor(docToBook);
-          setBookingStep('form');
-          // If a time was clicked, set it. Otherwise default to 9AM.
-          if (preSelectedTime) setFormTime(preSelectedTime);
-        }
+  // 1. OPEN BOOKING MODAL
+  const handleBookClick = (doctor) => {
+    // Check if user is logged in
+    if (!auth.currentUser) {
+      if(window.confirm("You must be logged in to book an appointment. Go to Login?")) {
+        navigate('/auth');
       }
-      // Clear state so it doesn't reopen on refresh
-      window.history.replaceState({}, document.title);
+      return;
     }
-  }, [location.state]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const openBooking = (doctor) => { 
-    setSelectedDoctor(doctor); 
-    setBookingStep('form'); 
-    setFormTime('09:00 AM'); // Reset time for manual opens
+    setSelectedDoc(doctor);
+    setIsBooking(true);
+    setBookingStatus('idle');
   };
-  
-  const closeBooking = () => { setSelectedDoctor(null); };
 
-  const confirmBooking = (e) => {
+  // 2. CONFIRM BOOKING (SAVE TO FIREBASE)
+  const confirmBooking = async (e) => {
     e.preventDefault();
-    setBookingStep('loading');
-    setTimeout(() => {
-      const newAppt = {
-        id: Date.now(),
-        doctor: selectedDoctor.name,
-        role: selectedDoctor.role,
-        date: e.target[0].value,
-        time: formTime // Use the state variable
-      };
-      const updated = [...appointments, newAppt];
-      setAppointments(updated);
-      localStorage.setItem('otsy_appointments', JSON.stringify(updated));
-      
-      setBookingStep('success');
-    }, 1500);
-  };
+    if(!bookingDate || !bookingTime) return alert("Please select date and time");
 
-  const cancelAppt = (id) => {
-    if(window.confirm("Cancel this appointment?")) {
-      const updated = appointments.filter(a => a.id !== id);
-      setAppointments(updated);
-      localStorage.setItem('otsy_appointments', JSON.stringify(updated));
+    setBookingStatus('loading');
+
+    try {
+      // Add to 'appointments' collection
+      await addDoc(collection(db, "appointments"), {
+        userId: auth.currentUser.uid,
+        doctorId: selectedDoc.id,
+        doctorName: selectedDoc.name,
+        specialty: selectedDoc.specialty,
+        image: selectedDoc.image,
+        date: bookingDate,
+        time: bookingTime,
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+      });
+
+      setBookingStatus('success');
+      
+      // Close after 2 seconds
+      setTimeout(() => {
+        setIsBooking(false);
+        setSelectedDoc(null);
+        setBookingDate('');
+        setBookingTime('');
+        navigate('/dashboard/settings'); // Go to Profile to see it
+      }, 2000);
+
+    } catch (error) {
+      console.error("Error booking:", error);
+      alert("Failed to book. Please try again.");
+      setBookingStatus('idle');
     }
   };
 
   return (
     <div className="services-container">
-      {/* MY APPOINTMENTS */}
-      {appointments.length > 0 && (
-        <div className="my-appointments-section">
-          <h3>My Appointments</h3>
-          <div className="appt-grid">
-            {appointments.map(appt => (
-              <div key={appt.id} className="appt-card">
-                <div className="appt-info">
-                  <h4>{appt.doctor}</h4>
-                  <p>{appt.role}</p>
-                  <div className="appt-time"><span>📅 {appt.date}</span><span>⏰ {appt.time}</span></div>
-                </div>
-                <button className="cancel-btn" onClick={() => cancelAppt(appt.id)}><Trash2 size={16}/></button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* HEADER */}
       <div className="services-header">
-        <div><h2>Find a Professional</h2><p>Verified experts ready to help you.</p></div>
-        <div className="filter-group">
-          {['All', 'Psychiatrist', 'Psychologist', 'Yoga'].map(cat => (
-            <button key={cat} className={`filter-btn ${filter === cat ? 'active' : ''}`} onClick={() => setFilter(cat)}>{cat}</button>
-          ))}
+        <h2>Find Professional Help</h2>
+        <p>Verified therapists and counselors, ready to listen.</p>
+        
+        <div className="search-bar-wrapper">
+          <Search className="search-icon" size={20}/>
+          <input 
+            type="text" 
+            placeholder="Search by name or specialty (e.g. Anxiety)..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
 
-      {/* GRID */}
+      {/* DOCTORS GRID */}
       <div className="doctors-grid">
         {filteredDoctors.map(doc => (
-          <div key={doc.id} className="doc-card">
-            <div className={`doc-card-header ${doc.role.split(' ')[0].toLowerCase()}-bg`}>
-              <div className="avatar-circle">{doc.img}</div>
-              <span className="availability-badge"><CheckCircle size={12}/> {doc.available}</span>
+          <div key={doc.id} className="doctor-card">
+            <div className="doc-img-wrapper">
+              <img src={doc.image} alt={doc.name} />
+              <div className="verified-badge">✓ Verified</div>
             </div>
-            <div className="doc-card-body">
-              <span className={`role-badge ${doc.role.split(' ')[0].toLowerCase()}`}>{doc.role}</span>
-              <h3 style={{cursor: 'pointer'}} onClick={() => navigate(`/dashboard/doctor/${doc.id}`)}>
-                {doc.name}
-              </h3>
-              <div className="doc-meta"><span><MapPin size={14} /> {doc.location}</span><span className="rating"><Star size={14} fill="#FFD700" color="#FFD700"/> {doc.rating}</span></div>
-              <button className="book-appt-btn" onClick={() => openBooking(doc)}><Calendar size={16}/> Book Session</button>
+            <div className="doc-info">
+              <div className="doc-top">
+                <h3>{doc.name}</h3>
+                <span className="rating"><Star size={14} fill="#fdd835" color="#fdd835"/> {doc.rating} ({doc.reviews})</span>
+              </div>
+              <p className="specialty">{doc.specialty}</p>
+              <div className="doc-meta">
+                <span><Video size={14}/> Video Call</span>
+                <span><MapPin size={14}/> Online</span>
+              </div>
+              <div className="doc-actions">
+                <span className="price">{doc.price}</span>
+                <button className="book-btn" onClick={() => handleBookClick(doc)}>Book Session</button>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* MODAL */}
-      {selectedDoctor && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-modal" onClick={closeBooking}><X size={20}/></button>
-            {bookingStep === 'form' && (
+      {/* BOOKING MODAL */}
+      {isBooking && selectedDoc && (
+        <div className="booking-overlay">
+          <div className="booking-modal">
+            <button className="close-booking" onClick={() => setIsBooking(false)}><X size={24}/></button>
+            
+            {bookingStatus === 'success' ? (
+              <div className="success-view">
+                <CheckCircle size={60} color="#2e7d32" />
+                <h3>Booking Confirmed!</h3>
+                <p>You have an appointment with {selectedDoc.name}</p>
+                <p>Date: {bookingDate} at {bookingTime}</p>
+                <small>Redirecting to your schedule...</small>
+              </div>
+            ) : (
               <>
-                <div className="modal-header"><h3>Book with {selectedDoctor.name}</h3><span className="role-text">{selectedDoctor.role}</span></div>
-                <form className="booking-form" onSubmit={confirmBooking}>
-                  <label>Select Date</label><input type="date" required className="form-input" />
-                  <label>Select Time</label>
-                  
-                  {/* Controlled Select Input */}
-                  <select 
-                    className="form-input" 
-                    value={formTime} 
-                    onChange={(e) => setFormTime(e.target.value)}
-                  >
-                    <option>09:00 AM</option>
-                    <option>11:00 AM</option>
-                    <option>02:00 PM</option>
-                    <option>04:00 PM</option>
-                  </select>
+                <div className="modal-header">
+                  <img src={selectedDoc.image} alt="Doctor" className="avatar-small"/>
+                  <div>
+                    <h3>Book with {selectedDoc.name}</h3>
+                    <p>{selectedDoc.specialty}</p>
+                  </div>
+                </div>
 
-                  <button type="submit" className="confirm-btn">Confirm Appointment</button>
+                <form onSubmit={confirmBooking}>
+                  <div className="form-group">
+                    <label><Calendar size={16}/> Select Date</label>
+                    <input type="date" value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} required min={new Date().toISOString().split('T')[0]} />
+                  </div>
+
+                  <div className="form-group">
+                    <label><Clock size={16}/> Select Time</label>
+                    <select value={bookingTime} onChange={(e) => setBookingTime(e.target.value)} required>
+                      <option value="">-- Choose Slot --</option>
+                      <option>09:00 AM</option>
+                      <option>11:00 AM</option>
+                      <option>02:00 PM</option>
+                      <option>04:30 PM</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" className="confirm-btn" disabled={bookingStatus === 'loading'}>
+                    {bookingStatus === 'loading' ? 'Confirming...' : 'Confirm Booking'}
+                  </button>
                 </form>
               </>
-            )}
-            {bookingStep === 'loading' && <div className="loading-state"><div className="spinner"></div><p>Connecting...</p></div>}
-            {bookingStep === 'success' && (
-              <div className="success-state"><div className="success-icon"><CheckCircle size={40}/></div><h3>Confirmed!</h3><p>Booked with {selectedDoctor.name}</p><button className="confirm-btn" onClick={closeBooking}>Done</button></div>
             )}
           </div>
         </div>
       )}
+
     </div>
   );
 };
