@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, Pause, Save, Check, RefreshCw, Volume2, VolumeX, 
   BookOpen, Headphones, Video, ChevronLeft, Lightbulb, 
-  Type, Moon, Sun, ArrowLeft, ArrowRight, X, Filter
+  Type, Moon, Sun, ArrowLeft, ArrowRight, X, Filter, Clock, CheckSquare, Droplets, Flame, Trash, Timer, Laptop
 } from 'lucide-react';
 import './MiniTools.css';
 
@@ -441,6 +441,265 @@ export const MiniLibrary = () => {
           ))}
         </div>
       )}
+    </div>
+  );
+};
+
+export const MiniSleep = () => {
+  const [wakeTime, setWakeTime] = useState("07:00");
+  const [bedTimes, setBedTimes] = useState([]);
+
+  const calculateBedtime = () => {
+    const [hours, minutes] = wakeTime.split(':').map(Number);
+    const wakeDate = new Date();
+    wakeDate.setHours(hours, minutes, 0);
+
+    // Calculate 4, 5, and 6 cycles back (90 mins each)
+    // 6 cycles = 9 hours, 5 cycles = 7.5 hours, 4 cycles = 6 hours
+    const cycles = [6, 5, 4]; 
+    const times = cycles.map(c => {
+      const d = new Date(wakeDate.getTime() - (c * 90 * 60 * 1000));
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    });
+    
+    setBedTimes(times);
+  };
+
+  return (
+    <div className="mini-tool-container">
+      <div style={{textAlign:'center', marginBottom:'15px'}}>
+        <h3 style={{fontSize:'1.1rem', color:'#333'}}>Sleep Calculator</h3>
+        <p style={{fontSize:'0.9rem', color:'#666'}}>Wake up refreshed by timing your REM cycles.</p>
+      </div>
+      
+      <div style={{display:'flex', gap:'10px', alignItems:'center', marginBottom:'20px'}}>
+        <label style={{fontWeight:'bold', color:'#333'}}>I want to wake up at:</label>
+        <input 
+          type="time" 
+          value={wakeTime} 
+          onChange={(e) => setWakeTime(e.target.value)}
+          style={{padding:'8px', borderRadius:'8px', border:'1px solid #ccc'}}
+        />
+      </div>
+
+      <button className="mini-btn" onClick={calculateBedtime}>Calculate Bedtime</button>
+
+      {bedTimes.length > 0 && (
+        <div style={{marginTop:'20px', width:'100%'}}>
+          <p style={{fontSize:'0.9rem', color:'#1565c0', fontWeight:'bold', marginBottom:'10px'}}>For best rest, fall asleep at:</p>
+          <div style={{display:'flex', justifyContent:'space-around'}}>
+            {bedTimes.map((t, i) => (
+              <div key={i} style={{background:'#e3f2fd', padding:'10px', borderRadius:'10px', textAlign:'center'}}>
+                <span style={{display:'block', fontWeight:'bold', fontSize:'1.1rem', color:'#1565c0'}}>{t}</span>
+                <span style={{fontSize:'0.7rem', color:'#666'}}>{[9, 7.5, 6][i]} hrs</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// =========================================================
+// 10. DAILY HABIT CHECKLIST (FUNCTIONAL TOOL)
+// =========================================================
+export const MiniHabits = () => {
+  // Load saved habits or default
+  const [habits, setHabits] = useState(() => {
+    const saved = localStorage.getItem('otsy_habits');
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 1, text: "Drink Water", icon: "💧", completed: false },
+      { id: 2, text: "Step Outside", icon: "☀️", completed: false },
+      { id: 3, text: "Deep Breaths", icon: "🌬️", completed: false },
+      { id: 4, text: "No Phone (1hr)", icon: "📵", completed: false },
+    ];
+  });
+
+  const toggleHabit = (id) => {
+    const newHabits = habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h);
+    setHabits(newHabits);
+    localStorage.setItem('otsy_habits', JSON.stringify(newHabits));
+  };
+
+  const resetHabits = () => {
+    const reset = habits.map(h => ({ ...h, completed: false }));
+    setHabits(reset);
+    localStorage.setItem('otsy_habits', JSON.stringify(reset));
+  };
+
+  const progress = Math.round((habits.filter(h => h.completed).length / habits.length) * 100);
+
+  return (
+    <div className="mini-tool-container">
+      <div style={{width:'100%', marginBottom:'15px'}}>
+        <div style={{display:'flex', justifyContent:'space-between', marginBottom:'5px'}}>
+          <strong style={{color:'#333'}}>Daily Goals</strong>
+          <span style={{color:'#1565c0', fontWeight:'bold'}}>{progress}%</span>
+        </div>
+        <div style={{width:'100%', height:'8px', background:'#f1f5f9', borderRadius:'4px'}}>
+          <div style={{width:`${progress}%`, height:'100%', background:'#1565c0', borderRadius:'4px', transition:'0.3s'}}></div>
+        </div>
+      </div>
+
+      <div style={{display:'flex', flexDirection:'column', gap:'10px', width:'100%'}}>
+        {habits.map(h => (
+          <div 
+            key={h.id} 
+            onClick={() => toggleHabit(h.id)}
+            style={{
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              padding:'12px', borderRadius:'12px', cursor:'pointer',
+              background: h.completed ? '#e8f5e9' : 'white',
+              border: h.completed ? '1px solid #c8e6c9' : '1px solid #eee',
+              transition: '0.2s'
+            }}
+          >
+            <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+              <span style={{fontSize:'1.2rem'}}>{h.icon}</span>
+              <span style={{color: h.completed ? '#2e7d32' : '#333', textDecoration: h.completed ? 'line-through' : 'none'}}>{h.text}</span>
+            </div>
+            {h.completed && <Check size={18} color="#2e7d32"/>}
+          </div>
+        ))}
+      </div>
+
+      <button className="mini-btn" onClick={resetHabits} style={{marginTop:'15px', background:'none', border:'1px solid #ddd', color:'#666'}}>
+        Reset Day
+      </button>
+    </div>
+  );
+};
+export const MiniFocus = () => {
+  const [minutes, setMinutes] = useState(25);
+  const [seconds, setSeconds] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const [mode, setMode] = useState('focus'); // focus | break
+
+  useEffect(() => {
+    let interval = null;
+    if (isActive) {
+      interval = setInterval(() => {
+        if (seconds === 0) {
+          if (minutes === 0) {
+            setIsActive(false);
+            // Play a ding sound here if wanted
+            alert(mode === 'focus' ? "Focus complete! Take a break." : "Break over! Back to work.");
+          } else {
+            setMinutes(minutes - 1);
+            setSeconds(59);
+          }
+        } else {
+          setSeconds(seconds - 1);
+        }
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isActive, minutes, seconds, mode]);
+
+  const toggleTimer = () => setIsActive(!isActive);
+  
+  const resetTimer = (newMode = 'focus') => {
+    setIsActive(false);
+    setMode(newMode);
+    setMinutes(newMode === 'focus' ? 25 : 5);
+    setSeconds(0);
+  };
+
+  return (
+    <div className="mini-tool-container">
+      <div style={{textAlign:'center', marginBottom:'20px'}}>
+        <div style={{fontSize:'3rem', fontWeight:'800', color:'#333', fontFamily:'monospace'}}>
+          {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+        </div>
+        <p style={{color:'#666', textTransform:'uppercase', letterSpacing:'2px', fontSize:'0.8rem'}}>
+          {mode === 'focus' ? '🔥 Deep Work' : '☕ Chill Break'}
+        </p>
+      </div>
+
+      <div style={{display:'flex', gap:'10px', marginBottom:'20px'}}>
+        <button 
+          className="mini-btn" 
+          onClick={toggleTimer}
+          style={{background: isActive ? '#ef5350' : '#2e7d32', width:'100px', justifyContent:'center'}}
+        >
+          {isActive ? 'Pause' : 'Start'}
+        </button>
+        <button className="mini-btn small" onClick={() => resetTimer('focus')}>25m Focus</button>
+        <button className="mini-btn small" onClick={() => resetTimer('break')}>5m Break</button>
+      </div>
+
+      <div style={{background:'#e3f2fd', padding:'10px', borderRadius:'10px', width:'100%', fontSize:'0.85rem', color:'#1565c0'}}>
+        <strong>Tip:</strong> Turn on "Brown Noise" in the Soundscapes tool for maximum concentration.
+      </div>
+    </div>
+  );
+};
+
+// =========================================================
+// 12. THE BURN BOX (Vent & Destroy)
+// =========================================================
+export const MiniBurn = () => {
+  const [text, setText] = useState("");
+  const [isBurning, setIsBurning] = useState(false);
+  const [burned, setBurned] = useState(false);
+
+  const handleBurn = () => {
+    if(!text) return;
+    setIsBurning(true);
+    setTimeout(() => {
+      setText("");
+      setIsBurning(false);
+      setBurned(true);
+      setTimeout(() => setBurned(false), 3000);
+    }, 2000); // 2 second animation
+  };
+
+  if (isBurning) {
+    return (
+      <div className="mini-tool-container" style={{height:'200px', justifyContent:'center'}}>
+        <div className="fire-animation">
+          <Flame size={64} color="#e65100" className="flicker" />
+          <p style={{color:'#e65100', fontWeight:'bold', marginTop:'10px'}}>Letting it go...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (burned) {
+    return (
+      <div className="mini-tool-container" style={{height:'200px', justifyContent:'center'}}>
+        <Check size={48} color="#2e7d32" />
+        <h3 style={{color:'#2e7d32'}}>Gone.</h3>
+        <p style={{textAlign:'center', color:'#666'}}>Those thoughts no longer hold power over you.</p>
+        <button className="mini-btn" onClick={() => setBurned(false)} style={{marginTop:'15px'}}>Write Again</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mini-tool-container">
+      <p style={{fontSize:'0.9rem', color:'#666', textAlign:'center', marginBottom:'10px'}}>
+        Type out your anger, stress, or worries. Then burn them. They won't be saved anywhere.
+      </p>
+      <textarea 
+        placeholder="I am feeling frustrated because..." 
+        value={text} 
+        onChange={(e) => setText(e.target.value)}
+        className="mini-textarea"
+        style={{background:'#fff3e0', borderColor:'#ffe0b2'}}
+      />
+      <button 
+        className="mini-btn" 
+        onClick={handleBurn} 
+        disabled={!text}
+        style={{background:'#d32f2f', width:'100%', justifyContent:'center'}}
+      >
+        <Flame size={18}/> Burn This Thought
+      </button>
     </div>
   );
 };

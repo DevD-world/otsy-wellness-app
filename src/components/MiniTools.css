@@ -246,3 +246,15 @@
 .cat-pill.active { background: #e3f2fd; color: #1565c0; border-color: #1565c0; font-weight: bold; }
 .reader-title-box { text-align: center; }
 .active-speak { background: #e8f5e9; padding: 5px; border-radius: 5px; }
+/* Fire Animation */
+.flicker {
+  animation: flickerAnimation 0.2s infinite;
+}
+
+@keyframes flickerAnimation {
+  0% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+  25% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  50% { transform: scale(0.9) rotate(-2deg); opacity: 0.8; }
+  75% { transform: scale(1.05) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+}

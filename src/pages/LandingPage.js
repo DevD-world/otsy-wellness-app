@@ -4,12 +4,13 @@ import {
   ArrowRight, Activity, Users, Star, 
   Wind, HeartHandshake, Lock, Zap, BookOpen, Lightbulb, 
   CheckCircle, ShieldCheck, Smile, Brain, 
-  X, Plus, Minus // <--- ADDED THESE IMPORTS
+  X, Plus, Minus, Clock, CheckSquare, Timer, Flame // <--- ADDED THESE IMPORTS
 } from 'lucide-react';
 import './LandingPage.css';
 
+import { MiniBreathing, MiniJournal, MiniMood, MiniSound, MiniBubble, MiniMemory, MiniLibrary, MiniFacts, MiniSleep, MiniHabits,MiniBurn, MiniFocus } from '../components/MiniTools';
 // IMPORT ALL TOOLS
-import { MiniBreathing, MiniJournal, MiniMood, MiniSound, MiniBubble, MiniMemory, MiniLibrary, MiniFacts } from '../components/MiniTools';
+
 
 const OTSY_IMG_URL = "otsy.png";
 
@@ -46,6 +47,20 @@ const LandingPage = () => {
     { id: 6, title: "Soundscapes", desc: "Rain, Forest, Fire.", longDesc: "Layered sounds to help you focus or sleep.", icon: <HeartHandshake size={28}/>, colorClass: "pink", type: "sound" },
     { id: 7, title: "Brain Facts", desc: "Did you know?", longDesc: "Learn something new about your psychology.", icon: <Lightbulb size={28}/>, colorClass: "gold", type: "facts" },
     { id: 10, title: "Wellness Library", desc: "Read, Listen, Watch.", longDesc: "A complete collection of mental health resources.", icon: <BookOpen size={28}/>, colorClass: "indigo", type: "library" },
+    { id: 8, title: "Sleep Calculator", desc: "Wake up refreshed.", longDesc: "Calculate the perfect bedtime based on 90-minute REM sleep cycles.", icon: <Clock size={28}/>, colorClass: "indigo", type: "sleep" },
+    { id: 9, title: "Habit Tracker", desc: "Build small wins.", longDesc: "A simple daily checklist to keep you grounded and moving forward.", icon: <CheckSquare size={28}/>, colorClass: "green", type: "habits" },
+    { 
+      id: 11, title: "Zen Focus Timer", 
+      desc: "Boost productivity.", 
+      longDesc: "A Pomodoro-style timer to help you work in focused bursts without burning out.", 
+      icon: <Timer size={28}/>, colorClass: "cyan", type: "focus" 
+    },
+    { 
+      id: 12, title: "Venting Box", 
+      desc: "Write & Destroy.", 
+      longDesc: "A safe space to release anger or intrusive thoughts. Type it out, burn it, and let it go.", 
+      icon: <Flame size={28}/>, colorClass: "red", type: "burn" 
+    },
   ];
 
   const faqs = [
@@ -73,6 +88,10 @@ const LandingPage = () => {
             {activeGame === 'bubble' ? <MiniBubble /> : <MiniMemory />}
           </div>
         );
+      case 'sleep': return <MiniSleep />;   // NEW
+      case 'habits': return <MiniHabits />;
+      case 'focus': return <MiniFocus />; // NEW
+      case 'burn': return <MiniBurn />;
       default: return null;
     }
   };
