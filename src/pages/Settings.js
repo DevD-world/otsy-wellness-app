@@ -1,101 +1,156 @@
 import React, { useState, useEffect } from 'react';
-import { User, Trash, Bell, Moon, ChevronRight, Save, X } from 'lucide-react'; // Add Save, X
+import { Moon, Sun, Bell, Volume2, Shield, User, ChevronRight, LogOut, Save } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import './Settings.css';
 
-const Settings = () => {
-  const [name, setName] = useState('');
-  const [isEditing, setIsEditing] = useState(false); // NEW STATE
-  const [tempName, setTempName] = useState(''); // NEW STATE
+// FIREBASE
+import { auth, db } from '../firebase';
+import { updateProfile, updatePassword } from "firebase/auth";
+import { doc, updateDoc } from "firebase/firestore";
 
+const Settings = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(auth.currentUser);
+  
+  // Preferences State
+  const [darkMode, setDarkMode] = useState(false);
+  const [notifications, setNotifications] = useState(true);
+  const [sound, setSound] = useState(true);
+  
+  // Profile Edit State
+  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [isEditing, setIsEditing] = useState(false);
+  const [status, setStatus] = useState('');
+
+  // 1. Load Saved Preferences (from LocalStorage for now)
   useEffect(() => {
-    const data = localStorage.getItem('otsy_user');
-    if (data) {
-      const parsed = JSON.parse(data);
-      setName(parsed.name);
-      setTempName(parsed.name);
-    }
+    const savedDark = localStorage.getItem('otsy_dark_mode') === 'true';
+    setDarkMode(savedDark);
+    if(savedDark) document.body.classList.add('dark-mode');
   }, []);
 
-  // NEW: Save Logic
-  const handleSaveName = () => {
-    const data = JSON.parse(localStorage.getItem('otsy_user') || '{}');
-    data.name = tempName;
-    localStorage.setItem('otsy_user', JSON.stringify(data));
-    setName(tempName);
-    setIsEditing(false);
-    // Reload to update header across app
-    window.location.reload(); 
+  // 2. Toggle Dark Mode
+  const toggleDarkMode = () => {
+    const newVal = !darkMode;
+    setDarkMode(newVal);
+    localStorage.setItem('otsy_dark_mode', newVal);
+    
+    if(newVal) document.body.classList.add('dark-mode');
+    else document.body.classList.remove('dark-mode');
   };
 
-  const clearAllData = () => {
-    if (window.confirm("This will reset Otsy completely. Are you sure?")) {
-      localStorage.clear();
-      window.location.href = "/";
+  // 3. Update Profile Name
+  const handleSaveProfile = async () => {
+    if(!user) return;
+    setStatus('Saving...');
+    try {
+      await updateProfile(user, { displayName: displayName });
+      // Also update in Firestore if user exists there
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { displayName: displayName }).catch(e => console.log("No firestore doc yet"));
+      
+      setStatus('Saved!');
+      setIsEditing(false);
+    } catch (e) {
+      console.error(e);
+      setStatus('Error');
     }
+    setTimeout(() => setStatus(''), 2000);
   };
 
-  const toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); };
+  // 4. Reset Password
+  const handlePasswordReset = () => {
+    if(!user) return;
+    navigate('/auth'); // Usually you'd send a reset email here
+    alert("For security, please log out and use 'Forgot Password' on the login screen.");
+  };
 
   return (
     <div className="settings-container">
-      <h2>Settings</h2>
-      
-      <div className="settings-section">
-        <h3>Profile</h3>
-        <div className="setting-item">
-          <div className="icon-bg blue"><User size={20}/></div>
+      <div className="settings-header">
+        <h2>Settings & Preferences</h2>
+        <p>Customize your Otsy experience.</p>
+      </div>
+
+      <div className="settings-grid">
+        
+        {/* SECTION 1: APP PREFERENCES */}
+        <div className="settings-card">
+          <h3>App Settings</h3>
           
-          <div className="setting-info">
-            <h4>Display Name</h4>
-            {/* TOGGLE BETWEEN INPUT AND TEXT */}
+          <div className="setting-item">
+            <div className="setting-label">
+              <div className="icon-bg purple"><Moon size={20}/></div>
+              <span>Dark Mode</span>
+            </div>
+            <label className="switch">
+              <input type="checkbox" checked={darkMode} onChange={toggleDarkMode}/>
+              <span className="slider round"></span>
+            </label>
+          </div>
+
+          <div className="setting-item">
+            <div className="setting-label">
+              <div className="icon-bg blue"><Bell size={20}/></div>
+              <span>Daily Reminders</span>
+            </div>
+            <label className="switch">
+              <input type="checkbox" checked={notifications} onChange={() => setNotifications(!notifications)}/>
+              <span className="slider round"></span>
+            </label>
+          </div>
+
+          <div className="setting-item">
+            <div className="setting-label">
+              <div className="icon-bg green"><Volume2 size={20}/></div>
+              <span>Sound Effects</span>
+            </div>
+            <label className="switch">
+              <input type="checkbox" checked={sound} onChange={() => setSound(!sound)}/>
+              <span className="slider round"></span>
+            </label>
+          </div>
+        </div>
+
+        {/* SECTION 2: ACCOUNT */}
+        <div className="settings-card">
+          <h3>Account</h3>
+          
+          <div className="account-edit-row">
+            <div className="setting-label">
+              <div className="icon-bg gold"><User size={20}/></div>
+              <span>Display Name</span>
+            </div>
             {isEditing ? (
-              <input 
-                type="text" 
-                value={tempName} 
-                onChange={(e) => setTempName(e.target.value)} 
-                className="edit-name-input"
-                autoFocus
-              />
+              <div className="edit-input-group">
+                <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                <button onClick={handleSaveProfile}><Save size={16}/></button>
+              </div>
             ) : (
-              <p>{name}</p>
+              <span className="value-text" onClick={() => setIsEditing(true)}>
+                {displayName || 'Guest'} <ChevronRight size={16}/>
+              </span>
             )}
           </div>
 
-          {/* TOGGLE BUTTONS */}
-          {isEditing ? (
-            <div style={{display:'flex', gap:'5px'}}>
-              <button className="icon-btn-small green" onClick={handleSaveName}><Save size={16}/></button>
-              <button className="icon-btn-small grey" onClick={() => setIsEditing(false)}><X size={16}/></button>
+          <div className="setting-item clickable" onClick={handlePasswordReset}>
+            <div className="setting-label">
+              <div className="icon-bg red"><Shield size={20}/></div>
+              <span>Security & Password</span>
             </div>
-          ) : (
-            <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit</button>
-          )}
+            <ChevronRight size={18} color="#ccc"/>
+          </div>
+          
+          <div className="setting-item clickable logout" onClick={() => { auth.signOut(); navigate('/'); }}>
+            <div className="setting-label">
+              <div className="icon-bg gray"><LogOut size={20}/></div>
+              <span>Log Out</span>
+            </div>
+          </div>
         </div>
-      </div>
-      
-      {/* ... Rest of the settings page ... */}
-      <div className="settings-section">
-        <h3>Preferences</h3>
-        <div className="setting-item">
-          <div className="icon-bg purple"><Bell size={20}/></div>
-          <div className="setting-info"><h4>Daily Reminders</h4><p>Receive check-in notifications</p></div>
-          <div className="toggle-switch active"></div>
-        </div>
-        <div className="setting-item">
-          <div className="icon-bg dark"><Moon size={20}/></div>
-          <div className="setting-info"><h4>Dark Mode</h4><p>Switch to dark theme</p></div>
-          <div className="toggle-switch" onClick={toggleDarkMode}></div>
-        </div>
-      </div>
-      <div className="settings-section danger-zone">
-        <h3>Data Management</h3>
-        <div className="setting-item" onClick={clearAllData} style={{cursor: 'pointer'}}>
-          <div className="icon-bg red"><Trash size={20}/></div>
-          <div className="setting-info"><h4>Reset All Data</h4><p>Clear journal, name, and history</p></div>
-          <ChevronRight size={20} color="#ff6b6b" />
-        </div>
-      </div>
 
+      </div>
+      {status && <div className="toast-msg">{status}</div>}
     </div>
   );
 };

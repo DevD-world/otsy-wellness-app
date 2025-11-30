@@ -14,73 +14,52 @@ const ChatSession = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // 1. RESPONSE LOGIC
+  // --- 1. OTSY'S BRAIN ---
   const generateResponse = (text) => {
     const lower = text.toLowerCase();
-    
-    if (lower.includes('anxi') || lower.includes('panic') || lower.includes('scared') || lower.includes('fear')) 
-      return "I hear you. Anxiety is tough. Have you tried the 4-7-8 breathing exercise in the Tools section? It lowers cortisol instantly.";
-    
-    if (lower.includes('sad') || lower.includes('depress') || lower.includes('cry') || lower.includes('lonely')) 
-      return "I'm sorry you're feeling this way. Emotions are like weather—they come and go. Would you like to journal about what's triggering this?";
-    
-    if (lower.includes('sleep') || lower.includes('tired') || lower.includes('insomnia')) 
-      return "Rest is vital. Try listening to the 'Brown Noise' or 'Rain' soundscapes in the Tools tab. They are great for quieting a racing mind.";
-    
-    if (lower.includes('angry') || lower.includes('mad')) 
-      return "It sounds like you're frustrated. Try the 'Box Breathing' technique or write a 'burn letter' (write it and delete it) in the Journal.";
-
-    if (lower.includes('hello') || lower.includes('hi')) 
-      return "Hello! I'm here. How is your mental space today?";
-
+    if (lower.includes('anxi') || lower.includes('panic') || lower.includes('fear')) return "I hear you. Anxiety is tough. Have you tried the 4-7-8 breathing exercise in the Tools section? It lowers cortisol instantly.";
+    if (lower.includes('sad') || lower.includes('depress') || lower.includes('cry')) return "I'm sorry you're feeling this way. Emotions are like weather—they come and go. Would you like to journal about it?";
+    if (lower.includes('sleep') || lower.includes('tired') || lower.includes('insomnia')) return "Rest is vital. Try listening to the 'Brown Noise' or 'Rain' soundscapes in the Tools tab.";
+    if (lower.includes('angry') || lower.includes('mad')) return "It sounds like you're frustrated. Try the 'Box Breathing' technique or write a 'burn letter' in the Journal.";
+    if (lower.includes('hello') || lower.includes('hi')) return "Hello! I'm here. How is your mental space today?";
     return "Thank you for sharing that. I'm listening. How does that make you feel?";
   };
 
-  // 2. SETUP LISTENERS (Load Chat)
+  // --- 2. LOAD CHAT HISTORY ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-
       if (currentUser) {
-        // --- LOGGED IN: FIREBASE LISTENER ---
+        // LOGGED IN: Try to fetch from Firebase
         const docRef = doc(db, "chats", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        
-        if (!docSnap.exists()) {
-          // Create chat if doesn't exist
-          const welcomeMsg = { id: 1, text: "Hi! I'm Otsy. I'm here to listen. How was your day?", sender: 'bot', timestamp: Date.now() };
-          await setDoc(docRef, { history: [welcomeMsg] });
-        }
-
-        // Real-time listener: THIS UPDATES THE UI AUTOMATICALLY
-        const unsubChat = onSnapshot(docRef, (snapshot) => {
-          if (snapshot.exists()) {
-            setMessages(snapshot.data().history || []);
+        try {
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setMessages(docSnap.data().history || []);
+          } else {
+            // New user, generic welcome
+            setMessages([{ id: 1, text: "Hi! I'm Otsy. How are you feeling?", sender: 'bot' }]);
           }
-        });
-        return () => unsubChat();
-
-      } else {
-        // --- GUEST: LOCAL STORAGE ---
-        const localChat = JSON.parse(localStorage.getItem('otsy_guest_chat') || '[]');
-        if (localChat.length === 0) {
-          const welcomeMsg = { id: 1, text: "Hi! I'm Otsy (Guest Mode). How are you?", sender: 'bot', timestamp: Date.now() };
-          setMessages([welcomeMsg]);
-          localStorage.setItem('otsy_guest_chat', JSON.stringify([welcomeMsg]));
-        } else {
-          setMessages(localChat);
+        } catch (error) {
+          console.error("Database Error (Read):", error);
+          // Fallback if DB fails
+          setMessages([{ id: 1, text: "Hi! I'm Otsy (Offline Mode).", sender: 'bot' }]);
         }
+      } else {
+        // GUEST: Local Storage
+        const local = JSON.parse(localStorage.getItem('otsy_guest_chat') || '[]');
+        setMessages(local.length ? local : [{ id: 1, text: "Hi! I'm Otsy. (Guest Mode)", sender: 'bot' }]);
       }
     });
     return () => unsubscribe();
   }, []);
 
-  // 3. AUTO SCROLL
+  // --- 3. AUTO SCROLL ---
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // 4. HANDLE SEND
+  // --- 4. HANDLE SEND (The "Bulletproof" Version) ---
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -89,51 +68,54 @@ const ChatSession = () => {
     setInput('');
     setIsTyping(true);
 
+    // 1. UPDATE UI IMMEDIATELY (Don't wait for DB)
     const userMsg = { id: Date.now(), text: userText, sender: 'user', timestamp: Date.now() };
-    
-    // --- BRANCH LOGIC ---
-    if (user) {
-      // A. LOGGED IN USER (Save to DB, Listener updates UI)
-      const chatRef = doc(db, "chats", user.uid);
-      await updateDoc(chatRef, { history: arrayUnion(userMsg) });
+    setMessages(prev => [...prev, userMsg]);
 
-      // Bot Reply
-      setTimeout(async () => {
-        const botText = generateResponse(userText);
-        const botMsg = { id: Date.now() + 1, text: botText, sender: 'bot', timestamp: Date.now() };
-        
-        await updateDoc(chatRef, { history: arrayUnion(botMsg) });
-        setIsTyping(false); 
-      }, 1500);
+    // 2. SAVE USER MSG (Background)
+    saveToBackground(userMsg, user);
 
+    // 3. TRIGGER BOT REPLY
+    setTimeout(() => {
+      const botText = generateResponse(userText);
+      const botMsg = { id: Date.now() + 1, text: botText, sender: 'bot', timestamp: Date.now() };
+
+      // Update UI
+      setMessages(prev => [...prev, botMsg]);
+      setIsTyping(false);
+
+      // Save Bot Msg (Background)
+      saveToBackground(botMsg, user);
+    }, 1500);
+  };
+
+  // Helper: Saves data but won't crash the app if it fails
+  const saveToBackground = async (msg, currentUser) => {
+    if (currentUser) {
+      try {
+        const chatRef = doc(db, "chats", currentUser.uid);
+        // Try to update, if fails (doc doesn't exist), set it
+        try {
+          await updateDoc(chatRef, { history: arrayUnion(msg) });
+        } catch (e) {
+          await setDoc(chatRef, { history: [msg] }, { merge: true });
+        }
+      } catch (error) {
+        console.error("Database Write Error (Check Permissions):", error);
+      }
     } else {
-      // B. GUEST USER (Manual UI Update)
-      const newHistory = [...messages, userMsg];
-      setMessages(newHistory);
-      localStorage.setItem('otsy_guest_chat', JSON.stringify(newHistory));
-
-      // Bot Reply
-      setTimeout(() => {
-        const botText = generateResponse(userText);
-        const botMsg = { id: Date.now() + 1, text: botText, sender: 'bot', timestamp: Date.now() };
-        
-        const updatedHistory = [...newHistory, botMsg];
-        setMessages(updatedHistory);
-        localStorage.setItem('otsy_guest_chat', JSON.stringify(updatedHistory));
-        setIsTyping(false);
-      }, 1500);
+      // Local Storage
+      const current = JSON.parse(localStorage.getItem('otsy_guest_chat') || '[]');
+      localStorage.setItem('otsy_guest_chat', JSON.stringify([...current, msg]));
     }
   };
 
-  const clearChat = async () => {
-    if(window.confirm("Clear conversation history?")) {
-      const resetMsg = [{ id: Date.now(), text: "Chat cleared. How can I help?", sender: 'bot', timestamp: Date.now() }];
-      if(user) {
-        await setDoc(doc(db, "chats", user.uid), { history: resetMsg });
-      } else {
-        setMessages(resetMsg);
-        localStorage.setItem('otsy_guest_chat', JSON.stringify(resetMsg));
-      }
+  const clearChat = () => {
+    if(window.confirm("Clear history?")) {
+      const reset = [{ id: Date.now(), text: "Chat cleared. I'm listening.", sender: 'bot' }];
+      setMessages(reset);
+      if(user) setDoc(doc(db, "chats", user.uid), { history: reset });
+      else localStorage.setItem('otsy_guest_chat', JSON.stringify(reset));
     }
   };
 
@@ -144,12 +126,12 @@ const ChatSession = () => {
           <div className="bot-avatar-header">O</div>
           <div><h3>Otsy</h3><span className="status">Always here to listen</span></div>
         </div>
-        <button className="clear-chat-btn" onClick={clearChat} title="Clear History"><Trash2 size={20} /></button>
+        <button className="clear-chat-btn" onClick={clearChat} title="Clear"><Trash2 size={20}/></button>
       </div>
 
       <div className="chat-messages-area">
-        {messages.map((msg) => (
-          <div key={msg.id} className={`chat-row ${msg.sender}`}>
+        {messages.map((msg, i) => (
+          <div key={i} className={`chat-row ${msg.sender}`}>
             {msg.sender === 'bot' && <div className="chat-avatar"><Bot size={18}/></div>}
             <div className="chat-bubble">{msg.text}</div>
           </div>
@@ -172,3 +154,4 @@ const ChatSession = () => {
 };
 
 export default ChatSession;
+
