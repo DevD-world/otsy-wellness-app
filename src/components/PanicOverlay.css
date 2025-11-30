@@ -1,0 +1,57 @@
+.panic-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: #e0f2f1; /* Very soft teal/green */
+  z-index: 9999; /* On top of EVERYTHING */
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 20px;
+}
+
+.close-panic {
+  position: absolute; top: 20px; right: 20px;
+  background: rgba(0,0,0,0.1); border: none; border-radius: 50%;
+  width: 50px; height: 50px; cursor: pointer; color: #004d40;
+  display: flex; justify-content: center; align-items: center; transition: 0.2s;
+}
+.close-panic:hover { background: rgba(0,0,0,0.2); }
+
+.panic-content { max-width: 600px; width: 100%; animation: fadeIn 0.5s ease; }
+.panic-content h2 { font-size: 2.5rem; color: #004d40; margin-bottom: 20px; }
+.panic-content p { font-size: 1.2rem; color: #00695c; margin-bottom: 40px; }
+
+/* BREATHING CIRCLE */
+.giant-breath-circle {
+  width: 250px; height: 250px; background: #80cbc4;
+  border-radius: 50%; margin: 0 auto 40px auto;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 50px rgba(128, 203, 196, 0.6);
+  transition: transform 4s ease-in-out;
+}
+.giant-breath-circle span { font-size: 2rem; color: white; font-weight: bold; }
+
+/* GROUNDING */
+.grounding-list { text-align: left; margin: 0 auto 40px auto; display: inline-block; }
+.g-item { font-size: 1.3rem; color: #004d40; margin-bottom: 15px; background: rgba(255,255,255,0.5); padding: 10px 20px; border-radius: 15px; }
+
+/* HELPLINES */
+.helpline-grid { display: grid; gap: 15px; width: 100%; margin-bottom: 30px; }
+.helpline-card {
+  display: flex; align-items: center; gap: 20px;
+  background: white; padding: 20px; border-radius: 15px;
+  text-decoration: none; color: #333; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: 0.2s;
+}
+.helpline-card:hover { transform: translateY(-3px); }
+.helpline-card strong { font-size: 1.5rem; color: #d32f2f; }
+
+/* BUTTONS */
+.next-step-btn {
+  background: #004d40; color: white; border: none; padding: 15px 40px;
+  border-radius: 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 77, 64, 0.2); transition: 0.2s;
+}
+.next-step-btn:hover { transform: scale(1.05); }
+.next-step-btn.secondary { background: transparent; border: 2px solid #004d40; color: #004d40; margin-left: 10px; }
+
+.panic-actions { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }

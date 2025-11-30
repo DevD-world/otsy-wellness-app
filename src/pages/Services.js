@@ -1,58 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Star, MapPin, Calendar, Clock, CheckCircle, Video, X } from 'lucide-react';
-import './Services.css'; // We will update this next
+import { Search, Star, MapPin, Calendar, Clock, CheckCircle, Video, X, Stethoscope } from 'lucide-react';
+import './Services.css'; 
 
-// FIREBASE
+// FIREBASE IMPORTS
 import { auth, db } from '../firebase';
-import { collection, addDoc } from "firebase/firestore";
-
-const doctors = [
-  { id: 1, name: "Dr. Sarah Jenkins", specialty: "Anxiety & Stress", rating: 4.9, reviews: 120, image: "https://randomuser.me/api/portraits/women/44.jpg", price: "$50/hr" },
-  { id: 2, name: "Dr. Michael Chen", specialty: "Depression & Trauma", rating: 4.8, reviews: 85, image: "https://randomuser.me/api/portraits/men/32.jpg", price: "$60/hr" },
-  { id: 3, name: "Emily Carter, LMFT", specialty: "Relationship Counseling", rating: 5.0, reviews: 200, image: "https://randomuser.me/api/portraits/women/68.jpg", price: "$55/hr" },
-  { id: 4, name: "Dr. James Wilson", specialty: "Child Psychology", rating: 4.7, reviews: 90, image: "https://randomuser.me/api/portraits/men/45.jpg", price: "$70/hr" },
-];
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 
 const Services = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   
+  // State for Dynamic Doctors
+  const [doctorsList, setDoctorsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
   // Booking State
-  const [selectedDoc, setSelectedDoc] = useState(null); // The doctor being booked
+  const [selectedDoc, setSelectedDoc] = useState(null);
   const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('');
-  const [isBooking, setIsBooking] = useState(false); // Controls Modal visibility
-  const [bookingStatus, setBookingStatus] = useState('idle'); // idle | loading | success
+  const [isBooking, setIsBooking] = useState(false);
+  const [bookingStatus, setBookingStatus] = useState('idle');
 
-  // Filter Doctors
-  const filteredDoctors = doctors.filter(doc => 
+  // --- 1. FETCH VERIFIED DOCTORS ---
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        // Query: Get users who are 'doctor' AND 'isVerified' is true
+        const q = query(
+          collection(db, "users"), 
+          where("role", "==", "doctor"), 
+          where("isVerified", "==", true)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const fetchedDocs = querySnapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data() 
+        }));
+
+        if (fetchedDocs.length > 0) {
+          setDoctorsList(fetchedDocs);
+        } else {
+          // FALLBACK: If no doctors exist in DB yet, show these Dummy Docs for demo purposes
+          setDoctorsList([
+            { id: 'd1', name: "Dr. Demo (Example)", specialty: "Psychologist", rating: 5.0, reviews: 10, price: "$50", image: "https://cdn-icons-png.flaticon.com/512/3774/3774299.png", isDemo: true },
+            { id: 'd2', name: "Dr. Sarah Smith", specialty: "Anxiety Expert", rating: 4.8, reviews: 42, price: "$60", image: "https://cdn-icons-png.flaticon.com/512/3774/3774299.png", isDemo: true }
+          ]);
+        }
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
+
+  // --- 2. SEARCH FILTER ---
+  const filteredDoctors = doctorsList.filter(doc => 
     doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     doc.specialty.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // ... inside Services component ...
-
-  // 1. OPEN BOOKING MODAL
+  // --- 3. HANDLE BOOK CLICK ---
   const handleBookClick = (doctor) => {
-    // START CHANGE: Check Login *inside* the click
+    // Force Login to book
     if (!auth.currentUser) {
-      // Allow them to see the modal but change button text OR
-      // Redirect immediately. Let's redirect with a clearer message.
-      if(window.confirm("You need a secure account to book an appointment with " + doctor.name + ". Sign in now?")) {
+      if(window.confirm("You need a secure patient account to book an appointment. Sign in/Register now?")) {
         navigate('/auth');
       }
       return;
     }
-    // END CHANGE
-    
     setSelectedDoc(doctor);
     setIsBooking(true);
     setBookingStatus('idle');
   };
-  
 
-  // 2. CONFIRM BOOKING (SAVE TO FIREBASE)
+  // --- 4. CONFIRM BOOKING ---
   const confirmBooking = async (e) => {
     e.preventDefault();
     if(!bookingDate || !bookingTime) return alert("Please select date and time");
@@ -60,13 +86,12 @@ const Services = () => {
     setBookingStatus('loading');
 
     try {
-      // Add to 'appointments' collection
       await addDoc(collection(db, "appointments"), {
         userId: auth.currentUser.uid,
-        doctorId: selectedDoc.id,
+        userName: auth.currentUser.displayName || "Patient",
+        doctorId: selectedDoc.id || selectedDoc.uid, // Handle both id types
         doctorName: selectedDoc.name,
         specialty: selectedDoc.specialty,
-        image: selectedDoc.image,
         date: bookingDate,
         time: bookingTime,
         status: 'confirmed',
@@ -75,13 +100,12 @@ const Services = () => {
 
       setBookingStatus('success');
       
-      // Close after 2 seconds
       setTimeout(() => {
         setIsBooking(false);
         setSelectedDoc(null);
         setBookingDate('');
         setBookingTime('');
-        navigate('/dashboard/settings'); // Go to Profile to see it
+        navigate('/dashboard/settings'); // Go to Profile to see appt
       }, 2000);
 
     } catch (error) {
@@ -93,7 +117,6 @@ const Services = () => {
 
   return (
     <div className="services-container">
-      {/* HEADER */}
       <div className="services-header">
         <h2>Find Professional Help</h2>
         <p>Verified therapists and counselors, ready to listen.</p>
@@ -109,32 +132,36 @@ const Services = () => {
         </div>
       </div>
 
-      {/* DOCTORS GRID */}
-      <div className="doctors-grid">
-        {filteredDoctors.map(doc => (
-          <div key={doc.id} className="doctor-card">
-            <div className="doc-img-wrapper">
-              <img src={doc.image} alt={doc.name} />
-              <div className="verified-badge">✓ Verified</div>
+      {loading ? (
+        <div style={{textAlign:'center', padding:'40px'}}>Loading Specialists...</div>
+      ) : (
+        <div className="doctors-grid">
+          {filteredDoctors.map(doc => (
+            <div key={doc.id} className="doctor-card">
+              <div className="doc-img-wrapper">
+                <img src={doc.image || "https://cdn-icons-png.flaticon.com/512/3774/3774299.png"} alt={doc.name} />
+                <div className="verified-badge">✓ Verified</div>
+              </div>
+              <div className="doc-info">
+                <div className="doc-top">
+                  <h3>{doc.name}</h3>
+                  <span className="rating"><Star size={14} fill="#fdd835" color="#fdd835"/> {doc.rating || 5.0} ({doc.reviews || 0})</span>
+                </div>
+                <p className="specialty">{doc.specialty}</p>
+                <div className="doc-meta">
+                  <span><Video size={14}/> Video Call</span>
+                  <span><MapPin size={14}/> Online</span>
+                </div>
+                {doc.isDemo && <small style={{color:'orange', display:'block', marginBottom:'5px'}}>*Demo Profile</small>}
+                <div className="doc-actions">
+                  <span className="price">{doc.price || "$50/hr"}</span>
+                  <button className="book-btn" onClick={() => handleBookClick(doc)}>Book Session</button>
+                </div>
+              </div>
             </div>
-            <div className="doc-info">
-              <div className="doc-top">
-                <h3>{doc.name}</h3>
-                <span className="rating"><Star size={14} fill="#fdd835" color="#fdd835"/> {doc.rating} ({doc.reviews})</span>
-              </div>
-              <p className="specialty">{doc.specialty}</p>
-              <div className="doc-meta">
-                <span><Video size={14}/> Video Call</span>
-                <span><MapPin size={14}/> Online</span>
-              </div>
-              <div className="doc-actions">
-                <span className="price">{doc.price}</span>
-                <button className="book-btn" onClick={() => handleBookClick(doc)}>Book Session</button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* BOOKING MODAL */}
       {isBooking && selectedDoc && (
@@ -153,7 +180,9 @@ const Services = () => {
             ) : (
               <>
                 <div className="modal-header">
-                  <img src={selectedDoc.image} alt="Doctor" className="avatar-small"/>
+                  <div className="avatar-small-wrapper">
+                     <Stethoscope size={24} color="#1565c0"/>
+                  </div>
                   <div>
                     <h3>Book with {selectedDoc.name}</h3>
                     <p>{selectedDoc.specialty}</p>
@@ -186,7 +215,6 @@ const Services = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

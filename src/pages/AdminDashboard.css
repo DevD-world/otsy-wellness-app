@@ -1,0 +1,33 @@
+.admin-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.admin-header {
+  display: flex; align-items: center; gap: 15px; margin-bottom: 40px;
+  padding-bottom: 20px; border-bottom: 1px solid #eee;
+}
+.admin-header h2 { margin: 0; color: #d32f2f; }
+
+.admin-list { display: flex; flex-direction: column; gap: 15px; }
+.admin-row {
+  background: white; padding: 20px; border-radius: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid #e2e8f0;
+}
+.doc-info h4 { margin: 0 0 5px 0; font-size: 1.1rem; }
+.doc-info p { margin: 0; color: #64748b; font-size: 0.9rem; }
+.doc-info small { color: #94a3b8; }
+
+.admin-actions { display: flex; gap: 10px; }
+.approve-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: #2e7d32; color: white; border: none; padding: 8px 16px;
+  border-radius: 8px; cursor: pointer; font-weight: bold;
+}
+.reject-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: #d32f2f; color: white; border: none; padding: 8px 16px;
+  border-radius: 8px; cursor: pointer;
+}

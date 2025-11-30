@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Import Firebase functions
-import { auth, googleProvider } from '../firebase';
+import { auth, googleProvider, db } from '../firebase'; // Ensure db is imported
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore'; // Import Firestore functions
 import './Auth.css'; 
 
 const Auth = () => {
@@ -15,6 +15,31 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // --- HELPER: ROUTE BASED ON ROLE ---
+  const routeUser = async (user) => {
+    try {
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.role === 'doctor') {
+          navigate('/doctor-dashboard');
+        } else if (data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
+      } else {
+        // If no firestore doc exists (e.g. fresh google sign in), assume patient
+        navigate('/dashboard');
+      }
+    } catch (e) {
+      console.error("Routing Error:", e);
+      navigate('/dashboard'); // Fallback
+    }
+  };
+
   // 1. Handle Email/Password Auth
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -22,20 +47,31 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      let user;
       if (isLogin) {
         // LOGIN
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        saveUserLocally(userCredential.user);
+        user = userCredential.user;
       } else {
-        // SIGN UP
+        // SIGN UP (Patients Only Here - Doctors use /doctor-signup)
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        // Add Display Name to profile
-        await updateProfile(userCredential.user, { displayName: name });
-        saveUserLocally(userCredential.user);
+        user = userCredential.user;
+        await updateProfile(user, { displayName: name });
+        
+        // Create Patient Doc
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          name: name,
+          email: email,
+          role: "patient",
+          createdAt: new Date().toISOString()
+        });
       }
-      navigate('/dashboard');
+      
+      saveUserLocally(user);
+      await routeUser(user); // Check role and redirect
+
     } catch (err) {
-      // Show friendly error messages
       const msg = err.code.replace('auth/', '').replace(/-/g, ' ');
       setError(msg.charAt(0).toUpperCase() + msg.slice(1));
     }
@@ -47,13 +83,28 @@ const Auth = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       saveUserLocally(result.user);
-      navigate('/dashboard');
+      
+      // Check if user exists in DB, if not create as patient
+      const docRef = doc(db, "users", result.user.uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        await setDoc(docRef, {
+          uid: result.user.uid,
+          name: result.user.displayName,
+          email: result.user.email,
+          role: "patient",
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      await routeUser(result.user);
+
     } catch (err) {
       setError("Google sign in failed. Try again.");
     }
   };
 
-  // Helper to keep app working with existing localStorage logic
   const saveUserLocally = (user) => {
     const userData = {
       name: user.displayName || user.email.split('@')[0],
@@ -67,13 +118,12 @@ const Auth = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+        <h2>{isLogin ? 'Welcome Back' : 'Patient Registration'}</h2>
         <p className="auth-subtitle">{isLogin ? 'Continue your wellness journey' : 'Start your journey with Otsy'}</p>
         
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleAuth}>
-          {/* Show Name field only for Sign Up */}
           {!isLogin && (
             <input 
               type="text" placeholder="Full Name" 
@@ -108,9 +158,16 @@ const Auth = () => {
             {isLogin ? 'Sign Up' : 'Log In'}
           </span>
         </p>
+
+        {/* LINK TO DOCTOR SIGNUP */}
+        <div style={{marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px', fontSize: '0.9rem'}}>
+          Are you a Doctor? <span style={{color:'#1565c0', cursor:'pointer', fontWeight:'bold'}} onClick={() => navigate('/doctor-signup')}>Apply Here</span>
+        </div>
       </div>
     </div>
   );
 };
 
+
 export default Auth;
+
