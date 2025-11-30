@@ -1,5 +1,38 @@
 # Getting Started with Create React App
 
+# Otsy 🦦 - Your AI Mental Wellness Companion
+
+Otsy is a Progressive Web App (PWA) designed to make mental health support accessible, private, and instant. It combines CBT (Cognitive Behavioral Therapy) techniques with an engaging, gamified interface.
+
+## 🚀 Key Features
+
+### 1. Instant Relief Tools (Guest Access)
+* **Anxiety Games:** Tactile Bubble Pop and Memory Match to stop panic spirals.
+* **Sound Mixer:** Layered soundscapes (Rain, Fire, Brown Noise) for focus and sleep.
+* **Full Library:** An immersive E-Reader with 12+ classic books (Meditations, etc.) and Audiobook support.
+* **Breathing Exercises:** Visual 4-7-8 breathing guide.
+
+### 2. Personalized Dashboard (Member Access)
+* **Mood Tracking:** Calendar heat-map to visualize emotional trends over time.
+* **Private Journal:** Local-first encryption ensures your thoughts stay private.
+* **AI Chat Companion:** A keyword-aware bot that provides immediate comforting responses.
+* **Therapist Booking:** Browse and book sessions with verified professionals.
+
+### 3. Technical Highlights
+* **PWA:** Installable on iOS/Android/Desktop.
+* **Local-First & Cloud Hybrid:** Uses LocalStorage for guests and Firebase Firestore for members.
+* **Real-time Sync:** Chat and Mood history sync across devices instantly.
+
+## 🛠️ Tech Stack
+* **Frontend:** React.js
+* **Styling:** CSS3 (Glassmorphism & Responsive Grid)
+* **Backend:** Firebase (Auth & Firestore)
+* **Icons:** Lucide React
+
+## ✨ How to Run
+1.  `npm install`
+2.  `npm start`
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
