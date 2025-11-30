@@ -20,3 +20,41 @@
 
 .volume-slider { width: 80px; accent-color: #2e7d32; cursor: pointer; }
 .tool-sub { font-size: 0.9rem; color: #94a3b8; margin-top: -5px; margin-bottom: 10px; }
+
+/* Bubble Wrap Game */
+.bubble-game { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 10px; }
+.bubbles-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.bubble {
+  width: 40px; height: 40px; background: #e3f2fd; border-radius: 50%;
+  box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1), 2px 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer; transition: 0.1s; border: 1px solid #bbdefb;
+}
+.bubble:active { transform: scale(0.9); }
+.bubble.popped { background: #f5f5f5; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1); border-color: #eee; transform: scale(0.95); }
+.reset-btn { background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: #666; }
+
+/* --- UPDATED BOOKSHELF FOR BIG SCREEN --- */
+.library-bookshelf {
+  display: grid;
+  /* Bigger columns: min 140px instead of 100px */
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+  gap: 25px; /* More breathing room */
+  width: 100%;
+  padding: 10px;
+}
+
+.book-item {
+  display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: 0.3s;
+  position: relative;
+}
+.book-item:hover { transform: translateY(-8px); }
+
+.book-cover {
+  width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 12px; /* Rounder corners */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Deeper shadow */
+  transition: box-shadow 0.3s;
+}
+.book-item:hover .book-cover { box-shadow: 0 15px 30px rgba(0,0,0,0.25); }
+
+.book-title { font-size: 1rem; font-weight: 700; color: #1e293b; line-height: 1.3; }
+.book-author { font-size: 0.85rem; color: #64748b; }

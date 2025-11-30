@@ -436,3 +436,133 @@
 .f-icon-large.gold { background: #fff9c4; color: #f9a825; }
 
 /* ... Rest of CSS stays same ... */
+/* ... (Keep all existing CSS) ... */
+
+/* --- MISSION SECTION --- */
+.mission-section {
+  padding: 100px 5%;
+  background: #f0f9ff;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-content { max-width: 700px; margin: 0 auto; position: relative; z-index: 2; }
+.mission-icon { margin-bottom: 20px; animation: pulseHeart 2s infinite; }
+.mission-content h2 { font-size: 2.5rem; color: #0f172a; margin-bottom: 20px; }
+.mission-content p { font-size: 1.2rem; color: #64748b; line-height: 1.6; margin-bottom: 40px; }
+
+.stats-row { display: flex; justify-content: center; gap: 50px; flex-wrap: wrap; }
+.stat-item { display: flex; flex-direction: column; }
+.stat-item strong { font-size: 2rem; color: #1565c0; }
+.stat-item span { color: #64748b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+
+/* --- TESTIMONIALS SECTION --- */
+.testimonials-section { padding: 100px 5%; background: white; }
+.testimonials-grid { 
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+  gap: 30px; max-width: 1200px; margin: 0 auto; 
+}
+
+.testi-card {
+  background: white; border: 1px solid #f1f5f9; padding: 30px; border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03); position: relative;
+}
+.quote-icon { color: #e3f2fd; position: absolute; top: 20px; left: 20px; }
+.testi-card p { font-size: 1.1rem; color: #334155; margin: 20px 0 30px 0; line-height: 1.6; font-style: italic; }
+
+.testi-user { display: flex; align-items: center; gap: 15px; }
+.testi-avatar {
+  width: 50px; height: 50px; background: #1565c0; color: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;
+}
+.testi-user h4 { margin: 0; color: #0f172a; font-size: 1rem; }
+.testi-user span { font-size: 0.85rem; color: #94a3b8; }
+
+/* --- FAT FOOTER --- */
+.fat-footer { background: #1e293b; color: white; padding: 80px 5% 20px 5%; }
+.footer-content { 
+  max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; 
+  justify-content: space-between; gap: 50px; padding-bottom: 60px; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.footer-brand { max-width: 300px; }
+.footer-brand h2 { font-size: 2rem; margin: 0 0 10px 0; color: white; }
+.footer-brand p { color: #94a3b8; margin-bottom: 20px; }
+
+.newsletter-box {
+  display: flex; background: rgba(255,255,255,0.1); padding: 5px; border-radius: 10px; align-items: center;
+}
+.newsletter-box svg { margin-left: 10px; color: #94a3b8; }
+.newsletter-box input {
+  background: none; border: none; padding: 10px; color: white; outline: none; width: 100%;
+}
+.newsletter-box button {
+  background: #1565c0; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer;
+}
+
+.footer-links { display: flex; gap: 60px; flex-wrap: wrap; }
+.link-col { display: flex; flex-direction: column; gap: 15px; }
+.link-col h4 { color: white; margin: 0 0 5px 0; font-size: 1.1rem; }
+.link-col span { color: #94a3b8; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+.link-col span:hover { color: white; transform: translateX(5px); }
+
+.footer-bottom { text-align: center; padding-top: 20px; color: #64748b; font-size: 0.9rem; }
+
+@keyframes pulseHeart { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+/* Mobile Footer Fix */
+@media (max-width: 768px) {
+  .footer-content { flex-direction: column; }
+  .footer-links { gap: 40px; }
+}
+
+/* --- FULL SCREEN MODAL UPGRADE --- */
+
+.feature-modal-card.full-screen {
+  width: 95vw;          /* Take up 95% of screen width */
+  max-width: 1400px;    /* Limit on giant monitors */
+  height: 90vh;         /* Take up 90% of screen height */
+  max-height: none;     /* Remove restrictions */
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  overflow: hidden;     /* Internal scrolling handles overflow */
+}
+
+/* Make the content area scrollable */
+.feature-modal-card.full-screen .feature-modal-actions {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-top: 20px;
+  padding-right: 10px; /* Space for scrollbar */
+}
+
+/* Hide the default header icons/text when in Full Screen Library mode to save space */
+.feature-modal-card.full-screen .modal-icon-header,
+.feature-modal-card.full-screen h2,
+.feature-modal-card.full-screen .feature-modal-desc {
+  display: none; 
+}
+
+/* Custom Scrollbar for the library */
+.feature-modal-card.full-screen .feature-modal-actions::-webkit-scrollbar {
+  width: 8px;
+}
+.feature-modal-card.full-screen .feature-modal-actions::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.feature-modal-card.full-screen .feature-modal-actions::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Mobile Adjustment */
+@media (max-width: 768px) {
+  .feature-modal-card.full-screen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    padding: 20px;
+  }
+}

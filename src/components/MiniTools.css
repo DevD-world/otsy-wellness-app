@@ -1,35 +1,19 @@
 .mini-tool-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  width: 100%;
-  padding-top: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; padding-top: 10px;
 }
 
 .mini-btn {
-  background: #1565c0;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: 0.2s;
+  background: #1565c0; color: white; border: none; padding: 10px 20px;
+  border-radius: 20px; font-weight: bold; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; transition: 0.2s;
 }
 .mini-btn:hover { background: #0d47a1; }
 .mini-btn.success { background: #2e7d32; }
 
 /* Breathing */
 .mini-breath-circle {
-  width: 60px; height: 60px;
-  background: #e3f2fd;
-  border-radius: 50%;
-  border: 3px solid #1565c0;
-  transition: all 4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 60px; height: 60px; background: #e3f2fd; border-radius: 50%;
+  border: 3px solid #1565c0; transition: all 4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .mini-breath-circle.inhale { transform: scale(1.8); background: #bbdefb; }
 .mini-breath-circle.hold { transform: scale(1.8); background: #90caf9; }
@@ -37,24 +21,16 @@
 
 /* Journal */
 .mini-textarea {
-  width: 100%;
-  height: 100px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 10px;
-  font-family: inherit;
-  resize: none;
+  width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 12px;
+  padding: 10px; font-family: inherit; resize: none;
 }
 
 /* Mood */
 .mini-mood-grid { display: flex; gap: 10px; }
 .mini-mood-btn {
-  background: white; border: 1px solid #ddd;
-  border-radius: 12px; padding: 10px;
-  display: flex; flex-direction: column; align-items: center;
-  cursor: pointer; transition: 0.2s;
+  background: white; border: 1px solid #ddd; border-radius: 12px; padding: 10px;
+  display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s;
 }
-.mini-mood-btn:hover { background: #f5f5f5; }
 .mini-mood-btn.selected { border-color: #1565c0; background: #e3f2fd; transform: scale(1.1); }
 .mini-feedback { font-size: 0.85rem; color: #2e7d32; font-weight: bold; }
 
@@ -64,5 +40,209 @@
 .sound-visualizer.active span { animation: soundWave 1s infinite; }
 .sound-visualizer span:nth-child(2) { animation-delay: 0.2s; }
 .sound-visualizer span:nth-child(3) { animation-delay: 0.4s; }
-
 @keyframes soundWave { 0%, 100% { height: 10px; } 50% { height: 30px; } }
+
+/* Bubble Game */
+.sound-toggle { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #666; margin-bottom: 5px; }
+.bubble-item {
+  width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+  background: #e3f2fd; border: 1px solid #bbdefb;
+  box-shadow: inset -2px -2px 5px rgba(0,0,0,0.1), 2px 2px 5px rgba(0,0,0,0.1);
+  transition: 0.1s;
+}
+.bubble-item:active { transform: scale(0.9); }
+.bubble-item.popped {
+  background: #f5f5f5; border-color: #eee; transform: scale(0.95);
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Memory Game */
+.memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.memory-card {
+  width: 50px; height: 50px; background: #1565c0; border-radius: 8px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; color: white; transition: transform 0.3s;
+}
+.memory-card .back { display: none; }
+.memory-card.flipped .front { display: none; }
+.memory-card.flipped .back { display: block; }
+.memory-card.flipped { background: white; border: 2px solid #1565c0; transform: rotateY(180deg); }
+.memory-card.solved { background: #e8f5e9; border-color: #2e7d32; opacity: 0.5; cursor: default; }
+
+/* ... Keep existing CSS ... */
+
+/* SOUND GRID */
+.sound-grid { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.mini-btn.small { width: 100%; justify-content: flex-start; background: #f8fafc; color: #333; border: 1px solid #ddd; }
+.mini-btn.small:hover { background: #eee; }
+.mini-btn.active-sound { background: #e3f2fd; border-color: #1565c0; color: #1565c0; }
+
+/* MINI LIBRARY */
+.library-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.mini-article-card {
+  display: flex; align-items: center; gap: 10px; padding: 15px;
+  background: #fff; border: 1px solid #f1f5f9; border-radius: 12px;
+  cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s;
+}
+.mini-article-card:hover { transform: translateX(5px); border-color: #1565c0; }
+.mini-article-card span { font-weight: 600; color: #333; }
+
+/* READER VIEW */
+.reader-view { text-align: left; animation: fadeIn 0.3s ease; width: 100%; }
+.back-btn { background: none; border: none; cursor: pointer; color: #666; display: flex; align-items: center; margin-bottom: 10px; padding: 0; }
+.reader-view h3 { margin: 0 0 15px 0; color: #1e293b; }
+.reader-text p { font-size: 0.95rem; line-height: 1.6; color: #475569; margin-bottom: 15px; }
+
+/* FACTS */
+.fact-box {
+  background: #fffde7; border: 1px solid #fff59d; padding: 20px;
+  border-radius: 16px; text-align: center; width: 100%;
+}
+.fact-box p { font-size: 1.1rem; color: #f57f17; font-weight: 500; margin-top: 10px; }
+/* ... Keep all existing CSS ... */
+
+/* --- LIBRARY TABS --- */
+.lib-tabs {
+  display: flex; width: 100%; background: #f1f5f9;
+  padding: 4px; border-radius: 12px; margin-bottom: 15px;
+}
+.lib-tab {
+  flex: 1; border: none; background: none; padding: 8px;
+  border-radius: 8px; font-weight: 600; color: #64748b;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: 0.2s; font-size: 0.9rem;
+}
+.lib-tab.active { background: white; color: #1565c0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+/* --- LIBRARY LIST --- */
+.lib-scroll-list {
+  display: flex; flex-direction: column; gap: 10px; width: 100%;
+  max-height: 300px; overflow-y: auto; padding-right: 5px;
+}
+/* Scrollbar styling */
+.lib-scroll-list::-webkit-scrollbar { width: 4px; }
+.lib-scroll-list::-webkit-scrollbar-track { background: #f1f5f9; }
+.lib-scroll-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+.lib-list-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; background: white; border: 1px solid #e2e8f0;
+  border-radius: 12px; cursor: pointer; transition: 0.2s;
+}
+.lib-list-item:hover { border-color: #1565c0; transform: translateX(3px); }
+
+.lib-icon-box {
+  width: 40px; height: 40px; background: #e3f2fd; color: #1565c0;
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.lib-item-info h4 { margin: 0; font-size: 0.95rem; color: #1e293b; }
+.lib-item-info p { margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b; line-height: 1.3; }
+
+/* --- MEDIA VIEWER (General) --- */
+.media-viewer { width: 100%; animation: fadeIn 0.3s ease; }
+.back-link {
+  background: none; border: none; cursor: pointer; color: #64748b;
+  display: flex; align-items: center; gap: 5px; font-size: 0.9rem; padding: 0; margin-bottom: 15px;
+}
+.back-link:hover { color: #1565c0; }
+
+.viewer-header { margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+.viewer-header h3 { margin: 0 0 5px 0; color: #0f172a; font-size: 1.2rem; }
+.author-tag { font-size: 0.85rem; color: #1565c0; background: #e3f2fd; padding: 2px 8px; border-radius: 4px; }
+
+/* --- READ VIEW --- */
+.text-content { font-size: 1rem; line-height: 1.7; color: #334155; max-height: 300px; overflow-y: auto; padding-right: 5px; }
+.text-content p { margin-bottom: 15px; }
+.read-footer { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #94a3b8; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+
+/* --- AUDIO VIEW --- */
+.audio-player-wrapper { text-align: center; background: #f8fafc; padding: 20px; border-radius: 16px; }
+.audio-visual {
+  width: 80px; height: 80px; background: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  animation: pulseAudio 2s infinite;
+}
+.native-audio { width: 100%; margin-top: 10px; }
+.audio-note { font-size: 0.8rem; color: #64748b; margin-top: 15px; }
+
+@keyframes pulseAudio { 0% { box-shadow: 0 0 0 0 rgba(21, 101, 192, 0.2); } 70% { box-shadow: 0 0 0 15px rgba(21, 101, 192, 0); } 100% { box-shadow: 0 0 0 0 rgba(21, 101, 192, 0); } }
+
+/* --- VIDEO VIEW --- */
+.video-wrapper { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+/* ... Keep existing CSS for other tools ... */
+
+/* --- LIBRARY BOOKSHELF --- */
+.library-bookshelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 15px;
+  width: 100%;
+}
+
+.book-item {
+  display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: 0.2s;
+}
+.book-item:hover { transform: translateY(-5px); }
+
+.book-cover {
+  width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.book-title { font-size: 0.9rem; font-weight: 700; color: #333; line-height: 1.2; }
+.book-author { font-size: 0.8rem; color: #666; }
+
+/* --- FULL SCREEN READER --- */
+.full-reader-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: #fff; z-index: 5000; display: flex; flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Reader Themes */
+.reader-theme-light { background: #fff; color: #333; }
+.reader-theme-sepia { background: #f4ecd8; color: #5b4636; }
+.reader-theme-dark { background: #222; color: #e0e0e0; }
+
+/* Reader Top Bar */
+.reader-header {
+  padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.1);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.reader-controls { display: flex; gap: 15px; align-items: center; }
+.reader-btn { background: none; border: none; cursor: pointer; opacity: 0.7; }
+.reader-btn:hover { opacity: 1; }
+
+/* Reader Content */
+.reader-content {
+  flex-grow: 1; padding: 40px 20px; overflow-y: auto;
+  max-width: 700px; margin: 0 auto;
+  font-family: 'Georgia', serif; line-height: 1.8;
+}
+.chapter-title { text-align: center; margin-bottom: 30px; font-weight: bold; }
+.text-body { white-space: pre-wrap; font-size: 1.1rem; }
+
+/* Reader Footer */
+.reader-footer {
+  padding: 15px; border-top: 1px solid rgba(0,0,0,0.1);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-chapter-btn {
+  background: #1565c0; color: white; border: none; padding: 10px 20px;
+  border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+}
+.nav-chapter-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+/* Add to MiniTools.css */
+.category-pills {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; width: 100%;
+}
+.cat-pill {
+  font-size: 0.8rem; padding: 5px 12px; background: #f1f5f9; border-radius: 15px; color: #64748b;
+  cursor: pointer; white-space: nowrap; transition: 0.2s; border: 1px solid transparent;
+}
+.cat-pill.active { background: #e3f2fd; color: #1565c0; border-color: #1565c0; font-weight: bold; }
+.reader-title-box { text-align: center; }
+.active-speak { background: #e8f5e9; padding: 5px; border-radius: 5px; }

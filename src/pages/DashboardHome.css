@@ -100,3 +100,63 @@
 .action-card p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
 
 .quote-banner { background: #37474f; color: white; padding: 30px; border-radius: 20px; text-align: center; font-style: italic; font-size: 1.1rem; }
+
+/* --- UI REFINEMENT: GLASSMORPHISM & GRADIENTS --- */
+
+/* 1. Upgrade the Check-in Section */
+.checkin-section {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px); /* The Blur Effect */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+  padding: 30px;
+  border-radius: 24px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* 2. Upgrade the Quick Action Cards */
+.action-card {
+  padding: 25px;
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.action-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+/* Add subtle shine effect */
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-25deg);
+  transition: 0.5s;
+}
+.action-card:hover::before { left: 150%; }
+
+/* Refine Gradients */
+.action-card.purple { background: linear-gradient(135deg, #7c4dff, #512da8); }
+.action-card.blue { background: linear-gradient(135deg, #42a5f5, #1565c0); }
+.action-card.green { background: linear-gradient(135deg, #66bb6a, #2e7d32); }
+
+/* 3. Refine Quote Banner */
+.quote-banner {
+  background: linear-gradient(to right, #37474f, #263238);
+  color: #eceff1;
+  padding: 40px;
+  border-radius: 24px;
+  text-align: center;
+  font-style: italic;
+  font-size: 1.2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.1);
+}

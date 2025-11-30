@@ -31,19 +31,26 @@ const Services = () => {
     doc.specialty.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // ... inside Services component ...
+
   // 1. OPEN BOOKING MODAL
   const handleBookClick = (doctor) => {
-    // Check if user is logged in
+    // START CHANGE: Check Login *inside* the click
     if (!auth.currentUser) {
-      if(window.confirm("You must be logged in to book an appointment. Go to Login?")) {
+      // Allow them to see the modal but change button text OR
+      // Redirect immediately. Let's redirect with a clearer message.
+      if(window.confirm("You need a secure account to book an appointment with " + doctor.name + ". Sign in now?")) {
         navigate('/auth');
       }
       return;
     }
+    // END CHANGE
+    
     setSelectedDoc(doctor);
     setIsBooking(true);
     setBookingStatus('idle');
   };
+  
 
   // 2. CONFIRM BOOKING (SAVE TO FIREBASE)
   const confirmBooking = async (e) => {
