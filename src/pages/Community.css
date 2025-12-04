@@ -96,4 +96,56 @@ textarea:focus { border-color: #1565c0; }
 }
 .empty-state { text-align: center; color: #94a3b8; padding: 40px; }
 
+
 @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.community-container { padding: 30px; max-width: 1000px; margin: 0 auto; }
+.comm-header { text-align: center; margin-bottom: 30px; }
+.comm-header h2 { font-size: 2rem; color: #2e7d32; margin-bottom: 5px; }
+.comm-header p { color: #666; }
+
+/* INPUT */
+.comm-input-box {
+  background: white; padding: 20px; border-radius: 16px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 40px;
+  border: 1px solid #e2e8f0;
+}
+.comm-input-box textarea {
+  width: 100%; height: 80px; border: none; outline: none; 
+  font-family: inherit; font-size: 1rem; resize: none;
+}
+.comm-actions { 
+  display: flex; justify-content: space-between; align-items: center; 
+  border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 10px; 
+}
+.comm-actions button {
+  background: #2e7d32; color: white; border: none; padding: 8px 20px; 
+  border-radius: 20px; font-weight: bold; cursor: pointer; display: flex; gap: 5px; align-items: center;
+}
+
+/* GRID */
+.masonry-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;
+}
+
+/* STICKY NOTES */
+.sticky-note {
+  background: #fff9c4; /* Yellow Note */
+  padding: 20px; border-radius: 2px 2px 20px 2px;
+  box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+  display: flex; flex-direction: column; justify-content: space-between;
+  min-height: 150px; transition: transform 0.2s;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+.sticky-note:nth-child(2n) { background: #e1bee7; transform: rotate(1deg); } /* Purple */
+.sticky-note:nth-child(3n) { background: #b2dfdb; transform: rotate(-1deg); } /* Teal */
+.sticky-note:nth-child(4n) { background: #ffccbc; } /* Orange */
+
+.sticky-note:hover { transform: scale(1.02) rotate(0); z-index: 10; }
+
+.note-text { font-family: 'Indie Flower', cursive, sans-serif; font-size: 1.1rem; color: #333; line-height: 1.4; flex-grow: 1; }
+.note-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 10px; }
+.note-author { font-size: 0.8rem; font-style: italic; opacity: 0.7; }
+
+.like-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; color: #555; font-size: 0.9rem; }
+.like-btn.liked { color: #e91e63; }

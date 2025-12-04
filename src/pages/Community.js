@@ -1,152 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageSquare, Send, User } from 'lucide-react';
-import './Community.css'; // We will create this next
-
-// FIREBASE
-import { auth, db } from '../firebase';
-import { collection, addDoc, query, orderBy, onSnapshot, updateDoc, doc, arrayUnion, arrayRemove } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { db, auth } from '../firebase';
+import { collection, addDoc, query, orderBy, onSnapshot, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { Heart, Send, MessageCircle } from 'lucide-react';
+import './Community.css';
 
 const Community = () => {
-  const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState('');
-  const [tag, setTag] = useState('General');
-  const [loading, setLoading] = useState(false);
+  const [newPost, setNewPost] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // 1. LISTEN TO AUTH & POSTS
+  // 1. Fetch Posts Real-time
   useEffect(() => {
-    // Check User
-    const unsubAuth = onAuthStateChanged(auth, (u) => setUser(u));
-
-    // Listen to Posts (Real-time)
-    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    const unsubPosts = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setPosts(postsData);
+    const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setPosts(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoading(false);
     });
-
-    return () => { unsubAuth(); unsubPosts(); };
+    return () => unsubscribe();
   }, []);
 
-  // 2. CREATE POST
+  // 2. Add Post
   const handlePost = async (e) => {
     e.preventDefault();
     if (!newPost.trim()) return;
 
-    setLoading(true);
-    try {
-      await addDoc(collection(db, "posts"), {
-        content: newPost,
-        author: user.displayName || user.email.split('@')[0],
-        uid: user.uid,
-        tag: tag,
-        likes: [], // Array of User IDs who liked
-        createdAt: new Date().toISOString()
-      });
-      setNewPost('');
-    } catch (error) {
-      console.error("Error posting:", error);
-    }
-    setLoading(false);
+    await addDoc(collection(db, "community_posts"), {
+      text: newPost,
+      author: "Anonymous Otter", // Keeping it anonymous for safety
+      uid: auth.currentUser.uid,
+      likes: [], // Array of user UIDs who liked
+      createdAt: new Date().toISOString()
+    });
+    setNewPost("");
   };
 
-  // 3. LIKE POST
+  // 3. Like Post
   const handleLike = async (postId, likesArray) => {
-    if (!user) return alert("Please log in to like posts.");
-
-    const postRef = doc(db, "posts", postId);
-    const isLiked = likesArray.includes(user.uid);
-
-    if (isLiked) {
-      await updateDoc(postRef, { likes: arrayRemove(user.uid) });
+    const uid = auth.currentUser.uid;
+    const postRef = doc(db, "community_posts", postId);
+    
+    if (likesArray.includes(uid)) {
+      await updateDoc(postRef, { likes: arrayRemove(uid) });
     } else {
-      await updateDoc(postRef, { likes: arrayUnion(user.uid) });
+      await updateDoc(postRef, { likes: arrayUnion(uid) });
     }
   };
 
   return (
     <div className="community-container">
-      
-      {/* HEADER */}
-      <div className="community-header">
-        <h2>Wellness Community</h2>
-        <p>Share your journey, support others.</p>
-      </div>
+      <header className="comm-header">
+        <h2>Community Garden 🌻</h2>
+        <p>Plant a seed of kindness. All posts are anonymous.</p>
+      </header>
 
-      {/* CREATE POST BOX */}
-      {user ? (
-        <div className="create-post-card">
-          <div className="cp-header">
-            <div className="avatar-small">{user.email.charAt(0).toUpperCase()}</div>
-            <span>Posting as <strong>{user.displayName || 'User'}</strong></span>
-          </div>
-          <form onSubmit={handlePost}>
-            <textarea 
-              placeholder="How are you feeling today? Share a win or a worry..." 
-              value={newPost}
-              onChange={(e) => setNewPost(e.target.value)}
-            />
-            <div className="cp-actions">
-              <select value={tag} onChange={(e) => setTag(e.target.value)} className="tag-select">
-                <option>General</option>
-                <option>Anxiety</option>
-                <option>Win</option>
-                <option>Vent</option>
-                <option>Advice</option>
-              </select>
-              <button type="submit" disabled={loading || !newPost.trim()}>
-                {loading ? 'Posting...' : <><Send size={16}/> Post</>}
-              </button>
-            </div>
-          </form>
+      {/* INPUT AREA */}
+      <form className="comm-input-box" onSubmit={handlePost}>
+        <textarea 
+          placeholder="Share some positivity or vent safely..." 
+          value={newPost}
+          onChange={(e) => setNewPost(e.target.value)}
+          maxLength={200}
+        />
+        <div className="comm-actions">
+          <span>{newPost.length}/200</span>
+          <button type="submit" disabled={!newPost.trim()}>
+            <Send size={16}/> Post
+          </button>
         </div>
-      ) : (
-        <div className="login-prompt">
-          <p>🔒 Log in to share your story with the community.</p>
+      </form>
+
+      {/* POSTS GRID */}
+      {loading ? <p style={{textAlign:'center'}}>Loading the garden...</p> : (
+        <div className="masonry-grid">
+          {posts.map(post => (
+            <div key={post.id} className="sticky-note">
+              <p className="note-text">{post.text}</p>
+              <div className="note-footer">
+                <span className="note-author">~ {post.author}</span>
+                <button 
+                  className={`like-btn ${post.likes?.includes(auth.currentUser?.uid) ? 'liked' : ''}`}
+                  onClick={() => handleLike(post.id, post.likes || [])}
+                >
+                  <Heart size={16} fill={post.likes?.includes(auth.currentUser?.uid) ? "#e91e63" : "none"} /> 
+                  {post.likes?.length || 0}
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
-
-      {/* POSTS FEED */}
-      <div className="posts-feed">
-        {posts.map(post => (
-          <div key={post.id} className="post-card">
-            <div className="post-top">
-              <div className="post-author">
-                <div className="avatar-xs">{post.author.charAt(0).toUpperCase()}</div>
-                <span className="author-name">{post.author}</span>
-                <span className="post-time">{new Date(post.createdAt).toLocaleDateString()}</span>
-              </div>
-              <span className={`post-tag ${post.tag.toLowerCase()}`}>{post.tag}</span>
-            </div>
-            
-            <p className="post-content">{post.content}</p>
-            
-            <div className="post-actions">
-              <button 
-                className={`action-btn ${user && post.likes.includes(user.uid) ? 'liked' : ''}`}
-                onClick={() => handleLike(post.id, post.likes)}
-              >
-                <Heart size={18} fill={user && post.likes.includes(user.uid) ? "#e91e63" : "none"}/> 
-                {post.likes.length}
-              </button>
-              <button className="action-btn">
-                <MessageSquare size={18}/> Comment
-              </button>
-            </div>
-          </div>
-        ))}
-        
-        {posts.length === 0 && (
-          <div className="empty-state">
-            <p>No posts yet. Be the first to share!</p>
-          </div>
-        )}
-      </div>
-
     </div>
   );
 };

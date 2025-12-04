@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, googleProvider, db } from '../firebase'; // Ensure db is imported
+import { auth, googleProvider, db } from '../firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore'; // Import Firestore functions
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import './Auth.css'; 
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(true); // Default to "Log In" mode
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,7 +15,8 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // --- HELPER: ROUTE BASED ON ROLE ---
+  // --- THE SMART REDIRECT LOGIC ---
+  // This checks the user's role in Firestore and sends them to the right dashboard
   const routeUser = async (user) => {
     try {
       const docRef = doc(db, "users", user.uid);
@@ -23,24 +24,28 @@ const Auth = () => {
 
       if (docSnap.exists()) {
         const data = docSnap.data();
+        
+        // CHECK ROLE
         if (data.role === 'doctor') {
+          console.log("User is a Doctor. Going to Doctor Dashboard.");
           navigate('/doctor-dashboard');
         } else if (data.role === 'admin') {
+          console.log("User is Admin.");
           navigate('/admin');
         } else {
-          navigate('/dashboard');
+          console.log("User is Patient.");
+          navigate('/user-home');
         }
       } else {
-        // If no firestore doc exists (e.g. fresh google sign in), assume patient
-        navigate('/dashboard');
+        // Fallback for new Google users (default to Patient)
+        navigate('/user-home');
       }
     } catch (e) {
       console.error("Routing Error:", e);
-      navigate('/dashboard'); // Fallback
+      setError("Login successful, but redirection failed.");
     }
   };
 
-  // 1. Handle Email/Password Auth
   const handleAuth = async (e) => {
     e.preventDefault();
     setError('');
@@ -49,42 +54,47 @@ const Auth = () => {
     try {
       let user;
       if (isLogin) {
-        // LOGIN
+        // --- LOG IN (For Doctors, Patients AND Admins) ---
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         user = userCredential.user;
       } else {
-        // SIGN UP (Patients Only Here - Doctors use /doctor-signup)
+        // --- SIGN UP (Patients Only) ---
+        // Doctors must use the separate /doctor-signup page
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         user = userCredential.user;
         await updateProfile(user, { displayName: name });
         
-        // Create Patient Doc
+        // Create Patient Profile in Database
         await setDoc(doc(db, "users", user.uid), {
           uid: user.uid,
           name: name,
           email: email,
-          role: "patient",
+          role: "patient", // Default role
           createdAt: new Date().toISOString()
         });
       }
       
-      saveUserLocally(user);
-      await routeUser(user); // Check role and redirect
+      // Save basic info to local storage for quick UI access
+      localStorage.setItem('otsy_user', JSON.stringify({
+        name: user.displayName, email: user.email, uid: user.uid
+      }));
+
+      // Decide where to go based on Database Role
+      await routeUser(user);
 
     } catch (err) {
-      const msg = err.code.replace('auth/', '').replace(/-/g, ' ');
-      setError(msg.charAt(0).toUpperCase() + msg.slice(1));
+      console.error(err);
+      // Clean up Firebase error message
+      setError(err.message.replace('Firebase:', '').trim());
     }
     setLoading(false);
   };
 
-  // 2. Handle Google Login
   const handleGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      saveUserLocally(result.user);
       
-      // Check if user exists in DB, if not create as patient
+      // Check if user exists, if not create as patient
       const docRef = doc(db, "users", result.user.uid);
       const docSnap = await getDoc(docRef);
       
@@ -97,29 +107,20 @@ const Auth = () => {
           createdAt: new Date().toISOString()
         });
       }
-
       await routeUser(result.user);
-
     } catch (err) {
-      setError("Google sign in failed. Try again.");
+      setError("Google sign in failed.");
     }
-  };
-
-  const saveUserLocally = (user) => {
-    const userData = {
-      name: user.displayName || user.email.split('@')[0],
-      email: user.email,
-      uid: user.uid,
-      photo: user.photoURL
-    };
-    localStorage.setItem('otsy_user', JSON.stringify(userData));
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>{isLogin ? 'Welcome Back' : 'Patient Registration'}</h2>
-        <p className="auth-subtitle">{isLogin ? 'Continue your wellness journey' : 'Start your journey with Otsy'}</p>
+        {/* DYNAMIC HEADER */}
+        <h2>{isLogin ? 'Log In' : 'Create Patient Account'}</h2>
+        <p className="auth-subtitle">
+          {isLogin ? 'Doctors & Patients login here' : 'Start your wellness journey'}
+        </p>
         
         {error && <div className="error-msg">{error}</div>}
 
@@ -152,22 +153,46 @@ const Auth = () => {
           Continue with Google
         </button>
 
+        {/* TOGGLE BETWEEN LOGIN / SIGNUP */}
         <p className="toggle-text">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          {isLogin ? "New Patient? " : "Have an account? "}
           <span onClick={() => setIsLogin(!isLogin)}>
-            {isLogin ? 'Sign Up' : 'Log In'}
+            {isLogin ? 'Create Account' : 'Log In Here'}
           </span>
         </p>
 
-        {/* LINK TO DOCTOR SIGNUP */}
-        <div style={{marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px', fontSize: '0.9rem'}}>
-          Are you a Doctor? <span style={{color:'#1565c0', cursor:'pointer', fontWeight:'bold'}} onClick={() => navigate('/doctor-signup')}>Apply Here</span>
+        {/* EXPLICIT LINKS FOR DOCTORS */}
+        <div style={{
+          marginTop: '25px', 
+          borderTop: '1px solid #eee', 
+          paddingTop: '20px', 
+          textAlign: 'center'
+        }}>
+          {isLogin ? (
+            <p style={{fontSize:'0.9rem', color:'#666'}}>
+              Are you a Doctor? <br/>
+              <span style={{color:'#1565c0', fontWeight:'bold'}}>
+                Log in above with your credentials.
+              </span>
+            </p>
+          ) : (
+            <div style={{background:'#e3f2fd', padding:'10px', borderRadius:'8px'}}>
+              <p style={{fontSize:'0.9rem', color:'#1565c0', marginBottom:'5px'}}>Are you a Therapist?</p>
+              <button 
+                onClick={() => navigate('/doctor-signup')}
+                style={{
+                  background: '#1565c0', color: 'white', border: 'none',
+                  padding: '8px 15px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
+                }}
+              >
+                Register as a Doctor Here
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-
 export default Auth;
-

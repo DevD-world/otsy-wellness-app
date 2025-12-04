@@ -7,6 +7,7 @@ import LandingPage from './pages/LandingPage';
 import Auth from './pages/Auth';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
+import VideoCall from './pages/VideoCall';
 
 // User Pages
 import DashboardHome from './pages/DashboardHome';
@@ -17,7 +18,7 @@ import Settings from './pages/Settings';
 import Community from './pages/Community';
 import Glossary from './pages/Glossary';
 import ChatSession from './pages/ChatSession';
-
+import UserHomePage from './pages/UserHomePage';
 // Doctor & Admin Pages
 import DoctorSignup from './pages/DoctorSignup';
 import DoctorDashboard from './pages/DoctorDashboard';
@@ -39,6 +40,8 @@ function App() {
 
         {/* --- USER PROTECTED ROUTES --- */}
         <Route element={<ProtectedRoute />}>
+        <Route path="/user-home" element={<UserHomePage />} />
+        <Route path="/call/:roomId" element={<VideoCall />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
              <Route index element={<DashboardHome />} />
              <Route path="services" element={<Services />} />

@@ -68,3 +68,80 @@
 .join-btn {
   background: #2e7d32; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;
 }
+
+/* --- LOCKED STATE --- */
+.doc-locked-container { height: 100vh; background: #f0f2f5; display: flex; align-items: center; justify-content: center; }
+.doc-locked-card { background: white; padding: 40px; border-radius: 16px; width: 400px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.status-icon-wrapper.pending { background: #fff3e0; color: #f57c00; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.doc-welcome { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
+.status-details { text-align: left; margin: 20px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0; }
+.status-step { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: #999; }
+.status-step.completed { color: #2e7d32; }
+.status-step.active { color: #1565c0; font-weight: bold; }
+.alert-box { background: #fff3e0; color: #e65100; padding: 10px; border-radius: 8px; display: flex; gap: 10px; font-size: 0.85rem; text-align: left; }
+.doc-logout-btn { margin-top: 20px; width: 100%; padding: 10px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 8px; }
+
+/* --- VERIFIED DASHBOARD LAYOUT --- */
+.doc-layout { display: flex; min-height: 100vh; background: #f8fafc; }
+.doc-sidebar { width: 250px; background: white; border-right: 1px solid #e2e8f0; padding: 20px; display: flex; flex-direction: column; }
+.doc-brand { font-size: 1.5rem; font-weight: bold; color: #1e293b; margin-bottom: 40px; display: flex; align-items: center; gap: 5px; }
+.doc-brand span { font-size: 0.8rem; background: #1565c0; color: white; padding: 2px 6px; border-radius: 4px; }
+.doc-nav { flex-grow: 1; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 12px; color: #64748b; cursor: pointer; border-radius: 8px; margin-bottom: 5px; }
+.nav-item.active { background: #e3f2fd; color: #1565c0; font-weight: 600; }
+.doc-logout-link { display: flex; align-items: center; gap: 10px; background: none; border: none; color: #ef5350; cursor: pointer; padding: 12px; }
+
+.doc-main { flex-grow: 1; padding: 30px; }
+.doc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.doc-profile-pill { display: flex; align-items: center; gap: 10px; background: white; padding: 8px 15px; border-radius: 20px; border: 1px solid #e2e8f0; }
+.online-indicator { width: 10px; height: 10px; background: #2e7d32; border-radius: 50%; }
+
+/* STATS */
+.doc-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+.stat-box { background: white; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+.stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.stat-box.blue .stat-icon { background: #e3f2fd; color: #1565c0; }
+.stat-box.green .stat-icon { background: #e8f5e9; color: #2e7d32; }
+.stat-box.purple .stat-icon { background: #f3e5f5; color: #7b1fa2; }
+.stat-info h3 { font-size: 1.8rem; margin: 0; color: #1e293b; }
+.stat-info p { margin: 0; color: #64748b; font-size: 0.9rem; }
+
+/* TABLE */
+.doc-table-section { background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; }
+.doc-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+.doc-table th { text-align: left; padding: 15px; color: #64748b; font-size: 0.85rem; border-bottom: 1px solid #eee; }
+.doc-table td { padding: 15px; border-bottom: 1px solid #f8fafc; color: #334155; }
+.status-badge.upcoming { background: #fff3e0; color: #ef6c00; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+.join-call-btn { background: #1565c0; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.8rem; }
+
+/* ... (Keep existing layout styles) ... */
+
+/* TABLE UPDATES */
+.time-stack { display: flex; flex-direction: column; }
+.time-stack span { font-size: 0.8rem; color: #999; }
+
+.status-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+.status-badge.upcoming, .status-badge.confirmed { background: #e3f2fd; color: #1565c0; }
+.status-badge.completed { background: #e8f5e9; color: #2e7d32; }
+.status-badge.cancelled { background: #ffebee; color: #c62828; }
+
+.row-completed { opacity: 0.6; background: #f9f9f9; }
+
+/* ACTION BUTTONS */
+.action-row { display: flex; gap: 8px; }
+.icon-btn { width: 32px; height: 32px; border-radius: 6px; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
+.icon-btn.video { background: #e3f2fd; color: #1565c0; }
+.icon-btn.video:hover { background: #1565c0; color: white; }
+.icon-btn.complete { background: #e8f5e9; color: #2e7d32; }
+.icon-btn.complete:hover { background: #2e7d32; color: white; }
+.icon-btn.cancel { background: #ffebee; color: #c62828; }
+.icon-btn.cancel:hover { background: #c62828; color: white; }
+.icon-btn.notes { background: #f3e5f5; color: #7b1fa2; }
+.icon-btn.notes:hover { background: #7b1fa2; color: white; }
+
+/* MODAL */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.notes-modal { background: white; width: 500px; padding: 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 15px; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.notes-modal textarea { height: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: none; }
+.save-note-btn { background: #2e7d32; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }

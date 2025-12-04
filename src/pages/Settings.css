@@ -221,3 +221,68 @@ body.dark-mode .settings-card, body.dark-mode .dashboard-container, body.dark-mo
 body.dark-mode h1, body.dark-mode h2, body.dark-mode h3 { color: #f1f5f9; }
 body.dark-mode .setting-label { color: #e2e8f0; }
 body.dark-mode .value-text { color: #94a3b8; }
+
+.settings-container { padding: 30px; max-width: 600px; margin: 0 auto; }
+.settings-container h2 { color: #1e293b; margin-bottom: 20px; }
+
+.settings-card {
+  background: white; padding: 30px; border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+}
+
+.setting-section { margin-bottom: 25px; }
+.setting-section label { display: block; font-weight: bold; margin-bottom: 10px; color: #475569; }
+
+/* AVATAR PICKER */
+.avatar-grid { display: flex; gap: 15px; }
+.avatar-option {
+  width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: 0.2s; padding: 2px;
+}
+.avatar-option:hover { transform: scale(1.1); }
+.avatar-option.selected { border-color: #1565c0; background: #e3f2fd; }
+
+/* INPUT */
+.input-group {
+  display: flex; align-items: center; gap: 10px;
+  background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px 15px; border-radius: 10px;
+}
+.input-group input { border: none; background: none; outline: none; font-size: 1rem; width: 100%; color: #333; }
+
+/* BUTTONS */
+.save-settings-btn {
+  width: 100%; background: #1565c0; color: white; border: none; padding: 12px;
+  border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: 0.2s;
+}
+.save-settings-btn:hover { background: #0d47a1; }
+
+.danger-zone { margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; }
+.danger-zone h3 { font-size: 1rem; color: #ef5350; margin-bottom: 15px; }
+.logout-btn {
+  background: #ffebee; color: #c62828; border: 1px solid #ffcdd2;
+  padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;
+  display: flex; align-items: center; gap: 8px;
+}
+.settings-container { padding: 30px; max-width: 900px; margin: 0 auto; }
+.settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+.settings-card { background: white; padding: 25px; border-radius: 16px; border: 1px solid #f1f5f9; }
+.settings-card h3 { margin: 0 0 20px 0; color: #1565c0; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.profile-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+.s-avatar { width: 50px; height: 50px; background: #e3f2fd; color: #1565c0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
+.edit-profile-btn { width: 100%; padding: 10px; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer; color: #555; }
+.setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.s-label { display: flex; align-items: center; gap: 10px; color: #334155; font-weight: 500; }
+.toggle { width: 45px; height: 24px; background: #cbd5e1; border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; }
+.toggle.on { background: #2e7d32; }
+.knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
+.toggle.on .knob { left: 23px; }
+.data-btn { width: 100%; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; background: #f8fafc; color: #334155; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
+.data-btn.delete { color: #d32f2f; background: #ffebee; }
+
+.toggle-switch { width: 50px; height: 26px; background: #ddd; border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; }
+.toggle-switch.on { background: #1565c0; }
+.toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; }
+.toggle-switch.on .toggle-knob { left: 27px; }
+.edit-btn { background: none; border: 1px solid #ccc; border-radius: 8px; padding: 5px; cursor: pointer; }
+.setting-input { padding: 5px; border: 1px solid #ccc; border-radius: 5px; }

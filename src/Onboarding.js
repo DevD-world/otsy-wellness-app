@@ -86,7 +86,7 @@ const Onboarding = () => {
       {/* 2. WELCOME SCREEN (Visible only if Chat is NOT active) */}
       {!showChat && (
         <div className="welcome-content">
-          <h1 className="logo-large">Otsy.</h1>
+          <h1 className="logo-large">Mindful Holt</h1>
           <p className="subtitle">Your personal AI wellness companion.</p>
           <button className="get-started-btn" onClick={startChat}>
             Get Started <ArrowRight size={20} />

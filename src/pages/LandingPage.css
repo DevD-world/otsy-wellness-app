@@ -536,3 +536,95 @@ body {
   background: #e2e8f0;
   color: #d32f2f;
 }
+/* Navbar Logo */
+.landing-logo-img {
+  height: 50px;
+  width: auto;
+  transition: all 0.3s ease;
+  object-fit: contain;
+}
+
+/* Make it slightly smaller when scrolled (optional polish) */
+.landing-nav.scrolled .landing-logo-img {
+  height: 40px;
+}
+
+/* Footer Logo */
+.footer-logo-img {
+  height: 60px;
+  width: auto;
+  margin-bottom: 15px;
+  opacity: 0.9;
+}
+.landing-logo-img { height: 50px; }
+
+/* ... (Keep Hero and Navbar CSS) ... */
+
+/* SPECIALIST COLORS - Use these for dynamic backgrounds */
+.cat-card.blue { border-bottom: 4px solid #1e88e5; }
+.cat-card.purple { border-bottom: 4px solid #8e24aa; }
+.cat-card.green { border-bottom: 4px solid #43a047; }
+.cat-card.gold { border-bottom: 4px solid #fbc02d; }
+
+.cat-card.blue .cat-img-wrapper { border: 2px solid #1e88e5; }
+.cat-card.purple .cat-img-wrapper { border: 2px solid #8e24aa; }
+.cat-card.green .cat-img-wrapper { border: 2px solid #43a047; }
+.cat-card.gold .cat-img-wrapper { border: 2px solid #fbc02d; }
+
+/* MODAL HEADER MATCHING CARD COLOR */
+.modal-img-header {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 20px 20px 0 0; /* Rounded top only */
+  width: 100%;
+  margin: -20px -20px 20px -20px; /* Stretch to fill modal width */
+  box-sizing: content-box;
+}
+
+.modal-img-header.blue { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+.modal-img-header.purple { background: linear-gradient(135deg, #f3e5f5, #e1bee7); }
+.modal-img-header.green { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+.modal-img-header.gold { background: linear-gradient(135deg, #fffde7, #fff9c4); }
+
+/* CLOUD & SPECIALIST MODAL BASE */
+.fluffy-modal-cloud {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  padding: 20px; /* Reduced because header handles top padding */
+  border-radius: 20px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  animation: fadeInPop 0.3s ease;
+}
+
+.close-cloud {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border-radius: 50%;
+  border: none;
+  width: 30px; height: 30px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+  z-index: 10;
+}
+
+.cloud-cta-btn {
+  background: #1565c0;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: bold;
+  margin-top: 15px;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.2s;
+}
+.cloud-cta-btn:hover { background: #0d47a1; transform: translateY(-2px); }
+
+/* ... (Keep remaining Feature Grid CSS) ... */

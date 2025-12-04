@@ -1,131 +1,159 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowRight, Activity,  
-  Wind, HeartHandshake, Lock, Zap, BookOpen, Lightbulb, 
-  CheckCircle, ShieldCheck, Smile, Brain, 
-  X, Plus, Minus, AlertTriangle, Sparkles
-  // Removed unused icons: Stethoscope, Flower2, Apple, MessageCircle, Users
+  ArrowRight, Activity, Wind, HeartHandshake, Lock, Zap, BookOpen, Lightbulb, 
+  CheckCircle, ShieldCheck, Smile, X, Plus, Minus, AlertTriangle, Sparkles, Anchor, Shield, Eye, Flame, Moon, Gamepad2
 } from 'lucide-react';
+import Logo from '../assets/logo.png'; 
 import './LandingPage.css';
 
-// IMPORT ALL TOOLS
-import { MiniBreathing, MiniJournal, MiniMood, MiniSound, MiniBubble, MiniMemory, MiniLibrary, MiniFacts, MiniSleep, MiniHabits, MiniFocus, MiniBurn } from '../components/MiniTools';
-import PanicOverlay from '../components/PanicOverlay';
+// Import ALL MiniTools
+import { 
+  MiniBreathing, MiniJournal, MiniMood, MiniSound, 
+  MiniBubble, MiniMemory, MiniLibrary, MiniFacts, 
+  MiniSleep, MiniFocus, MiniBurn,
+  MiniSobriety, MiniSafeSpace, MiniGrounding
+} from '../components/MiniTools';
 
-const OTSY_IMG_URL = "otsy.png";
+import PanicOverlay from '../components/PanicOverlay';
+import PublicChatWidget from '../components/PublicChatWidget';
+
+// --- FIXED: IMAGE PATHS FOR PUBLIC FOLDER ---
+// Since these are in the public folder, we use string paths starting with "/"
+const OTSY_DEFAULT = "/otsy.png"; 
+const OTSY_DR = "/otsydr.png";
+const OTSY_YOGA = "/otsyyoga.png";
+const OTSY_CON = "/otsycon.png";
+
+// --- STATIC DATA (Defined outside to prevent crashes) ---
+
+const TIPS = [
+  "Did you know? 4-7-8 breathing can stop a panic attack in 2 minutes.",
+  "Fact: Writing down worries reduces their power.",
+  "Tip: Brown noise helps ADHD brains focus.",
+  "Reminder: Healing is not linear."
+];
+
+const CLOUD_DATA = [
+  { id: 1, label: "Overthinking?", detail: "Racing thoughts? Use the Zen Focus Timer to channel that energy.", pos: "pos-1", toolType: 'focus' },
+  { id: 2, label: "Phobia/Fear?", detail: "Face fears safely. Try the Safe Space visualization.", pos: "pos-2", toolType: 'safespace' },
+  { id: 3, label: "Anxious?", detail: "Instant grounding. Use the 5-4-3-2-1 technique now.", pos: "pos-3", toolType: 'grounding' },
+  { id: 4, label: "Can't Sleep?", detail: "Calculate your perfect wake-up time.", pos: "pos-4", toolType: 'sleep' },
+  { id: 5, label: "Emotional?", detail: "Untangle the chaos with mood tracking.", pos: "pos-5", toolType: 'mood' }
+];
+
+// --- UPDATED CATEGORIES WITH YOUR IMAGES ---
+const CATEGORIES = [
+  { 
+    id: 'c1', title: "Psychologists", 
+    desc: "Experts in talk therapy (CBT, DBT). They help you understand your thought patterns.", 
+    imgUrl: OTSY_DEFAULT, // Uses public/otsydr.png
+    color: "blue" 
+  },
+  { 
+    id: 'c2', title: "Psychiatrists", 
+    desc: "Medical doctors who can diagnose conditions and prescribe medication if needed.", 
+    imgUrl: OTSY_DR, // Uses public/otsydr.png
+    color: "purple" 
+  },
+  { 
+    id: 'c3', title: "Yoga & Somatic", 
+    desc: "Heal trauma through the body using movement and breathwork.", 
+    imgUrl: OTSY_YOGA, // Uses public/otsyyoga.png
+    color: "green" 
+  },
+  { 
+    id: 'c4', title: "Counselors", 
+    desc: "Guidance for life transitions, grief, or relationship issues.", 
+    imgUrl: OTSY_CON, // Uses public/otsycon.png
+    color: "gold" 
+  }
+];
+
+const FEATURES = [
+  { id: 1, title: "Mood Refreshing", desc: "Shift your mindset.", longDesc: "Track how you feel.", icon: <Activity size={28}/>, colorClass: "blue", type: "mood" },
+  { id: 2, title: "Private Journal", desc: "Encrypted locally.", longDesc: "Write without fear.", icon: <Lock size={28}/>, colorClass: "purple", type: "journal" },
+  { id: 6, title: "Soundscapes", desc: "Rain, Forest, Fire.", longDesc: "Layered sounds.", icon: <HeartHandshake size={28}/>, colorClass: "pink", type: "sound" },
+  { id: 10, title: "Wellness Library", desc: "Read, Listen, Watch.", longDesc: "Resources.", icon: <BookOpen size={28}/>, colorClass: "indigo", type: "library" },
+  { id: 11, title: "Zen Focus Timer", desc: "Boost productivity.", longDesc: "Pomodoro timer.", icon: <Wind size={28}/>, colorClass: "cyan", type: "focus" },
+  { id: 12, title: "Burn Box", desc: "Write & Destroy.", longDesc: "Type a worry and watch it burn.", icon: <Flame size={28}/>, colorClass: "red", type: "burn" },
+  { id: 13, title: "Grounding", desc: "Stop dissociation.", longDesc: "5-4-3-2-1 Technique.", icon: <Eye size={28}/>, colorClass: "green", type: "grounding" },
+  { id: 14, title: "Sobriety Anchor", desc: "Recover & Track.", longDesc: "Track days clean.", icon: <Anchor size={28}/>, colorClass: "blue", type: "sobriety" },
+  { id: 15, title: "Trauma Safe Space", desc: "Find safety.", longDesc: "Guided visualization.", icon: <Shield size={28}/>, colorClass: "purple", type: "safespace" },
+  { id: 8, title: "Sleep Calculator", desc: "Wake up refreshed.", longDesc: "Calculate bedtime.", icon: <Moon size={28}/>, colorClass: "gold", type: "sleep" },
+  { id: 5, title: "Anxiety Games", desc: "Pop & Match.", longDesc: "Distract your mind.", icon: <Gamepad2 size={28}/>, colorClass: "cyan", type: "game" },
+];
+
+const FAQS = [
+  { q: "I feel anxious often. How can Otsy help?", a: "Otsy has a dedicated 'Zen Mode' and Grounding tools to stop spirals immediately." },
+  { q: "Can this app help me sleep better?", a: "Yes. Our 'Soundscapes' and 'Sleep Calculator' help you disconnect." },
+  { q: "Is Otsy a replacement for a therapist?", a: "No, but we connect you with verified therapists in the 'Find Help' section." },
+  { q: "Is my journal actually private?", a: "100%. We use 'Local Storage Encryption'. Data stays on your device." }
+];
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  
+  // STATE DEFINITIONS
   const [selectedCloud, setSelectedCloud] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [activeGame, setActiveGame] = useState('bubble'); 
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [showPanic, setShowPanic] = useState(false); 
   const [showAffirmation, setShowAffirmation] = useState(true);
   const [tipIndex, setTipIndex] = useState(0);
+  const [activeGame, setActiveGame] = useState('bubble');
 
-  // Effects (Scroll, Affirmation timer, Tips rotator) - KEEP EXISTING CODE
+  // --- EFFECTS ---
+  
+  // 1. Scroll & Affirmation Timer
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
+    
     const timer = setTimeout(() => setShowAffirmation(false), 3500);
-    return () => clearTimeout(timer);
+    
+    return () => { 
+      window.removeEventListener('scroll', handleScroll); 
+      clearTimeout(timer); 
+    };
   }, []);
 
-  const tips = [
-    "Did you know? 4-7-8 breathing can stop a panic attack in 2 minutes.",
-    "Fact: Writing down worries reduces their power over you.",
-    "Tip: Brown noise helps ADHD brains focus better than silence.",
-    "Reminder: Healing is not linear. Be patient with yourself."
-  ];
-
+  // 2. Tip Rotation
   useEffect(() => {
-    const interval = setInterval(() => setTipIndex((prev) => (prev + 1) % tips.length), 4000);
+    const interval = setInterval(() => {
+      setTipIndex((prev) => (prev + 1) % TIPS.length);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
+  // --- HANDLERS ---
   const toggleFaq = (index) => setOpenFaq(openFaq === index ? null : index);
 
-  const cloudData = [
-    { id: 1, label: "Overthinking?", detail: "Racing thoughts? Zen Mode quiets the noise.", pos: "pos-1" },
-    { id: 2, label: "Phobia?", detail: "Face fears with gradual exposure techniques.", pos: "pos-2" },
-    { id: 3, label: "Anxious?", detail: "Instant grounding when panic strikes.", pos: "pos-3" },
-    { id: 4, label: "Stressed?", detail: "Lower cortisol with 4-7-8 breathing.", pos: "pos-4" },
-    { id: 5, label: "Emotional?", detail: "Untangle the chaos with mood tracking.", pos: "pos-5" }
-  ];
-
-  // --- UPDATED CATEGORIES DATA (Using Images) ---
-  const categories = [
-    { 
-      id: 'c1', 
-      title: "Psychologists", 
-      desc: "Talk therapy for anxiety, depression, and trauma.", 
-      // TODO: Replace this URL with your custom "Otsy holding brain" image URL
-      imgUrl: "otsy.png", 
-      color: "blue" 
-    },
-    { 
-      id: 'c2', 
-      title: "Psychiatrists", 
-      desc: "Medical doctors who can prescribe medication.", 
-      // TODO: Replace this URL with your custom "Otsy with stethoscope" image URL
-      imgUrl: "otsydr.png",
-      color: "purple" 
-    },
-    { 
-      id: 'c3', 
-      title: "Yoga & Somatic", 
-      desc: "Heal trauma through body movement and breath.", 
-      // TODO: Replace this URL with your custom "Otsy doing yoga" image URL
-      imgUrl: "otsyyoga.png",
-      color: "green" 
-    },
-    // Removed Nutritionists entry
-    { 
-      id: 'c5', 
-      title: "Counselors", 
-      desc: "Guidance for relationships and life transitions.", 
-      // TODO: Replace this URL with your custom "Counselor Otsy" image URL
-      imgUrl: "otsycon.png" ,
-      color: "gold" 
+  const handleCloudFix = (toolType) => {
+    const feature = FEATURES.find(f => f.type === toolType);
+    if (feature) {
+      setSelectedCloud(null);
+      setSelectedFeature(feature);
+    } else {
+      setSelectedCloud(null);
+      if (toolType === 'panic') setShowPanic(true);
     }
-  ];
-
-  const features = [
-    { id: 1, title: "Mood Refreshing", desc: "Shift your mindset instantly.", longDesc: "Track how you feel or express gratitude.", icon: <Activity size={28}/>, colorClass: "blue", type: "mood" },
-    { id: 2, title: "Private Journal", desc: "Encrypted locally on your device.", longDesc: "Write without fear. Saves to your browser instantly.", icon: <Lock size={28}/>, colorClass: "purple", type: "journal" },
-    { id: 5, title: "Anxiety Games", desc: "Pop, Match, Relax.", longDesc: "Tactile distractions to stop panic spirals.", icon: <Zap size={28}/>, colorClass: "cyan", type: "game" },
-    { id: 6, title: "Soundscapes", desc: "Rain, Forest, Fire.", longDesc: "Layered sounds to help you focus or sleep.", icon: <HeartHandshake size={28}/>, colorClass: "pink", type: "sound" },
-    { id: 7, title: "Brain Facts", desc: "Did you know?", longDesc: "Learn something new about your psychology.", icon: <Lightbulb size={28}/>, colorClass: "gold", type: "facts" },
-    { id: 10, title: "Wellness Library", desc: "Read, Listen, Watch.", longDesc: "A complete collection of mental health resources.", icon: <BookOpen size={28}/>, colorClass: "indigo", type: "library" },
-    { id: 11, title: "Zen Focus Timer", desc: "Boost productivity.", longDesc: "A Pomodoro-style timer to help you work in focused bursts.", icon: <Wind size={28}/>, colorClass: "cyan", type: "focus" },
-    { id: 12, title: "Venting Box", desc: "Write & Destroy.", longDesc: "Type it out, burn it, and let it go.", icon: <ShieldCheck size={28}/>, colorClass: "red", type: "burn" },
-  ];
-
-  const faqs = [
-    { q: "I feel anxious often. How can Otsy help?", a: "Otsy has a dedicated 'Zen Mode'. It instantly blocks distractions and guides you through breathing exercises." },
-    { q: "Can this app help me sleep better?", a: "Yes. Our 'Soundscapes' tool provides brown noise, rain, and forest ambiances to help you disconnect." },
-    { q: "Is Otsy a replacement for a therapist?", a: "No, it is a self-care companion. However, if you need human help, our 'Professionals' tab connects you with verified therapists." },
-    { q: "Is my journal actually private?", a: "100%. We use 'Local Storage Encryption'. Your journal entries live on your device, not our servers." },
-    { q: "Is it free?", a: "The core features—Mood Tracking, Journaling, and Games—are completely free forever." }
-  ];
+  };
 
   const renderWidget = (feature) => {
     switch(feature.type) {
       case 'library': return <MiniLibrary />;
       case 'journal': return <MiniJournal />;
-      case 'facts': return <MiniFacts />;
       case 'sound': return <MiniSound />;
       case 'mood': return <MiniMood />;
       case 'focus': return <MiniFocus />;
       case 'burn': return <MiniBurn />;
+      case 'grounding': return <MiniGrounding />;
+      case 'sobriety': return <MiniSobriety />;
+      case 'safespace': return <MiniSafeSpace />;
+      case 'sleep': return <MiniSleep />;
       case 'game': 
         return (
           <div style={{width: '100%'}}>
@@ -136,29 +164,31 @@ const LandingPage = () => {
             {activeGame === 'bubble' ? <MiniBubble /> : <MiniMemory />}
           </div>
         );
-      default: return null;
+      default: return <p>Tool loading...</p>;
     }
   };
 
   return (
     <div className="landing-container">
-      
-      {/* AFFIRMATION OVERLAY (Keep existing) */}
+      {/* AFFIRMATION OVERLAY */}
       {showAffirmation && (
         <div className="affirmation-overlay">
           <div className="affirmation-content">
             <Sparkles size={40} color="#F4A261" className="sparkle-anim"/>
-            <h2>"You are enough, just as you are."</h2>
-            <p>Take a deep breath. Welcome to Otsy.</p>
+            <h2>"Nothing can bring you PEACE but yourself can!!"</h2>
+            <p>Welcome to Mindful Holt.</p>
           </div>
         </div>
       )}
 
-      {/* NAVBAR (Keep existing) */}
+      {/* NAVBAR */}
       <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
-        <h2 className="logo">Otsy.</h2>
+        <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+          <img src={Logo} alt="Mindful Holt" className="landing-logo-img" />
+          <span style={{fontFamily: 'Quicksand, sans-serif', fontWeight: '700', fontSize: '1.5rem', color: scrolled ? '#1565c0' : 'white'}}>Mindful Holt</span>
+        </div>
         <div className="nav-links">
-          <button className="panic-nav-btn" onClick={() => setShowPanic(true)} title="Emergency Calm">
+          <button className="panic-nav-btn" onClick={() => setShowPanic(true)}>
             <AlertTriangle size={18} /> <span>Panic Mode</span>
           </button>
           <button className="login-link" onClick={() => navigate('/auth')}>Log In</button>
@@ -166,153 +196,126 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* HERO SECTION (Keep existing) */}
+      {/* HERO SECTION */}
       <header className="hero-section-centered">
         <div className="hero-text-center">
-          <div className="badge-pill">✨ #1 Wellness Companion 2025</div>
+          <div className="badge-pill">✨ #1 Wellness Companion</div>
           <h1>Find Your Balance in a <br/> <span className="highlight-text">Noisy World.</span></h1>
+          
           <div className="rotating-tip-box">
-            <p key={tipIndex} className="fade-text">{tips[tipIndex]}</p>
+            <p key={tipIndex} className="fade-text">{TIPS[tipIndex]}</p>
           </div>
+
           <div className="hero-btn-row">
             <button className="cta-primary center-btn" onClick={() => navigate('/auth')}>Start Your Journey <ArrowRight size={18} /></button>
-            <button className="cta-secondary" onClick={() => document.getElementById('features').scrollIntoView({behavior:'smooth'})}>Explore Tools</button>
           </div>
         </div>
         <div className="interactive-sky-center">
-          <div className="otter-center floating"><img src={OTSY_IMG_URL} alt="Otsy Otter" className="main-otter-img" /></div>
+          <div className="otter-center floating"><img src={OTSY_DEFAULT} alt="Otsy" className="main-otter-img" /></div>
+          
+          {/* CLOUDS */}
           <div className="clouds-layer-center">
-            {cloudData.map((cloud) => (
+            {CLOUD_DATA.map((cloud) => (
               <div key={cloud.id} className={`cloud-btn-wrapper ${cloud.pos}`} onClick={() => setSelectedCloud(cloud)}>
                 <div className="fluffy-cloud-shape"><span>{cloud.label}</span></div>
               </div>
             ))}
           </div>
+          
+          {/* CLOUD POPUP */}
           {selectedCloud && (
             <div className="cloud-modal-overlay" onClick={() => setSelectedCloud(null)}>
               <div className="fluffy-modal-cloud fadeInPop" onClick={(e) => e.stopPropagation()}>
                 <button className="close-cloud" onClick={() => setSelectedCloud(null)}><X/></button>
-                <h3>{selectedCloud.label}</h3><div className="modal-divider"></div><p>{selectedCloud.detail}</p>
-                <button className="cloud-cta-btn" onClick={() => { setSelectedCloud(null); document.getElementById('features').scrollIntoView({behavior:'smooth'}); }}>Fix this now</button>
+                <h3>{selectedCloud.label}</h3>
+                <div className="modal-divider"></div>
+                <p>{selectedCloud.detail}</p>
+                <button className="cloud-cta-btn" onClick={() => handleCloudFix(selectedCloud.toolType)}>
+                  Fix this now
+                </button>
               </div>
             </div>
           )}
         </div>
       </header>
 
-      {/* --- UPDATED SECTION: EXPERT CATEGORIES (With Images) --- */}
+      {/* SPECIALISTS SECTION */}
       <section className="categories-section">
         <div className="section-header-small">
           <h3>Expert Support</h3>
-          <p>Find the right professional for your needs.</p>
+          <p>Verified professionals ready to help you.</p>
         </div>
         <div className="cat-scroll-container">
-          {categories.map(cat => (
+          {CATEGORIES.map(cat => (
             <div key={cat.id} className={`cat-card ${cat.color}`} onClick={() => setSelectedCategory(cat)}>
-              {/* REPLACED ICON WITH IMAGE */}
-              <div className="cat-img-wrapper">
-                <img src={cat.imgUrl} alt={cat.title} className="cat-img" />
-              </div>
+              <div className="cat-img-wrapper"><img src={cat.imgUrl} alt={cat.title} className="cat-img" /></div>
               <h4>{cat.title}</h4>
             </div>
           ))}
         </div>
-        {/* CATEGORY MODAL (Updated to show image) */}
+
+        {/* SPECIALIST POPUP */}
         {selectedCategory && (
           <div className="cloud-modal-overlay" onClick={() => setSelectedCategory(null)}>
             <div className="fluffy-modal-cloud fadeInPop" onClick={(e) => e.stopPropagation()}>
               <button className="close-cloud" onClick={() => setSelectedCategory(null)}><X/></button>
-              <div className={`modal-img-header ${selectedCategory.color}`} style={{marginBottom:'15px'}}>
-                 <img src={selectedCategory.imgUrl} alt={selectedCategory.title} style={{width:'100%', height:'100%', objectFit:'contain'}}/>
+              
+              <div className={`modal-img-header ${selectedCategory.color}`}>
+                 <img src={selectedCategory.imgUrl} alt={selectedCategory.title} style={{width:'80px', height:'80px', objectFit:'contain'}}/>
               </div>
-              <h3>{selectedCategory.title}</h3>
-              <p>{selectedCategory.desc}</p>
-              <button className="cloud-cta-btn" onClick={() => navigate('/auth')}>Find a {selectedCategory.title.slice(0, -1)}</button>
+              
+              <h3 style={{marginTop:'15px', color:'#333'}}>{selectedCategory.title}</h3>
+              <div className="modal-divider"></div>
+              <p style={{textAlign:'left', fontSize:'0.95rem', lineHeight:'1.5'}}>{selectedCategory.desc}</p>
+              
+              <button className="cloud-cta-btn" onClick={() => navigate('/auth')}>
+                Find a {selectedCategory.title.slice(0, -1)}
+              </button>
             </div>
           </div>
         )}
       </section>
 
-      {/* MARQUEE (Keep existing) */}
-      <div className="marquee-container">
-        <div className="marquee-content">
-          <span>SLEEP BETTER • REDUCE ANXIETY • FOCUS DEEPER • TRACK MOODS • FIND THERAPY • BREATHE EASIER • </span>
-          <span>SLEEP BETTER • REDUCE ANXIETY • FOCUS DEEPER • TRACK MOODS • FIND THERAPY • BREATHE EASIER • </span>
-        </div>
-      </div>
-
-      {/* FEATURES GRID (Keep existing) */}
+      {/* FEATURES GRID SECTION */}
       <section id="features" className="features-section">
         <div className="section-header">
           <h3>Interactive Wellness Toolkit</h3>
           <p>Don't just read about relief. Experience it right now.</p>
         </div>
         <div className="features-grid">
-          {features.map((feature) => (
+          {FEATURES.map((feature) => (
             <div key={feature.id} className="feature-card-interactive" onClick={() => setSelectedFeature(feature)}>
               <div className={`f-icon-large ${feature.colorClass}`}>{feature.icon}</div>
               <div className="f-content"><h3>{feature.title}</h3><p>{feature.desc}</p><span className="learn-more-link">Open Tool <ArrowRight size={14}/></span></div>
             </div>
           ))}
         </div>
+        
+        {/* TOOL MODAL */}
         {selectedFeature && (
           <div className="feature-modal-overlay" onClick={() => setSelectedFeature(null)}>
             <div className={`feature-modal-card ${selectedFeature.type === 'library' ? 'full-screen' : ''}`} onClick={(e) => e.stopPropagation()}>
               <button className="close-feature" onClick={() => setSelectedFeature(null)}><X/></button>
+              
               {selectedFeature.type !== 'library' && (
                 <>
                   <div className={`modal-icon-header ${selectedFeature.colorClass}`}>{selectedFeature.icon}</div>
-                  <h2>{selectedFeature.title}</h2><p className="feature-modal-desc">{selectedFeature.longDesc}</p>
+                  <h2>{selectedFeature.title}</h2>
+                  <p className="feature-modal-desc">{selectedFeature.longDesc}</p>
                 </>
               )}
-              {selectedFeature.type === 'library' && (
-                <div style={{marginBottom:'20px', borderBottom:'1px solid #eee', paddingBottom:'10px'}}>
-                   <h2 style={{margin:0, color:'#1565c0'}}>Otsy Library</h2><p style={{margin:0, color:'#64748b'}}>Read, Listen, and Watch.</p>
-                </div>
-              )}
+              
               <div className="feature-modal-actions">{renderWidget(selectedFeature)}</div>
             </div>
           </div>
         )}
       </section>
 
-      {/* PRIVACY BANNER (Keep existing) */}
-      <section className="privacy-banner">
-        <div className="privacy-content">
-          <ShieldCheck size={48} className="shield-icon"/>
-          <div>
-            <h3>Your Thoughts Are Yours Alone.</h3>
-            <p>We use <strong>Local-First Architecture</strong>. This means your journal entries and personal reflections are encrypted on your device. We cannot read them. We do not sell them.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* WHY OTSY? (Keep existing) */}
-      <section className="problem-solution-section">
-        <div className="ps-container">
-          <div className="ps-text">
-            <h3 className="section-label">WHY OTSY?</h3>
-            <h2>Mental health support shouldn't be complicated.</h2>
-            <p>You don't need another complex dashboard. You need a friend. Otsy combines scientifically proven CBT techniques with a simple, friendly interface to help you feel better in minutes, not months.</p>
-            <ul className="benefits-list">
-              <li><CheckCircle size={20} color="#2e7d32"/> <strong>Instant Relief:</strong> Games & Breathing tools ready in 1 tap.</li>
-              <li><CheckCircle size={20} color="#2e7d32"/> <strong>Data Privacy:</strong> Your journal never leaves your device.</li>
-              <li><CheckCircle size={20} color="#2e7d32"/> <strong>Professional Care:</strong> Access to 50+ verified therapists.</li>
-            </ul>
-          </div>
-          <div className="ps-visual">
-            <div className="stat-floater f1"><Brain size={24}/> <span>Cognitive Therapy</span></div>
-            <div className="stat-floater f2"><Smile size={24}/> <span>Mood Analysis</span></div>
-            <div className="stat-floater f3"><ShieldCheck size={24}/> <span>100% Private</span></div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ SECTION (Keep existing) */}
+      {/* FAQ SECTION */}
       <section className="faq-section">
         <div className="section-header"><h3>Common Questions</h3></div>
         <div className="faq-container">
-          {faqs.map((item, i) => (
+          {FAQS.map((item, i) => (
              <div key={i} className={`faq-item ${openFaq === i ? 'open' : ''}`} onClick={() => toggleFaq(i)}>
                <div className="faq-question"><h4>{item.q}</h4><div className="icon-wrapper">{openFaq === i ? <Minus size={20}/> : <Plus size={20}/>}</div></div>
                <div className="faq-answer"><div className="answer-content"><p>{item.a}</p></div></div>
@@ -321,23 +324,24 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* FOOTER (Keep existing) */}
+      {/* FOOTER */}
       <footer className="fat-footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h2>Otsy.</h2>
+            <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'15px'}}>
+              <img src={Logo} alt="Mindful Holt" className="landing-logo-img" style={{height:'50px'}}/>
+              <span style={{fontSize:'1.5rem', fontWeight:'bold', color:'white'}}>Mindful Holt</span>
+            </div>
             <p>Made with 💙 for a healthier mind.</p>
-            <p className="copyright">© 2025 Otsy Wellness Inc.</p>
           </div>
           <div className="footer-links">
-            <div className="link-col"><h4>Platform</h4><span>Web App</span><span>iOS (Coming Soon)</span><span>Android (Coming Soon)</span></div>
-            <div className="link-col"><h4>Resources</h4><span>Crisis Support</span><span>Find a Therapist</span><span>Community</span></div>
-            <div className="link-col"><h4>Legal</h4><span>Privacy Policy</span><span>Terms of Service</span><span>Cookie Policy</span></div>
+            <div className="link-col"><h4>Platform</h4><span>Web App</span><span onClick={() => navigate('/doctor-signup')}>For Therapists</span></div>
           </div>
         </div>
       </footer>
 
       {showPanic && <PanicOverlay onClose={() => setShowPanic(false)} />}
+      <PublicChatWidget />
     </div>
   );
 };

@@ -1,33 +1,60 @@
-.admin-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 20px;
+.admin-container { max-width: 900px; margin: 0 auto; padding: 40px 20px; font-family: sans-serif; }
+.admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+.admin-brand { display: flex; align-items: center; gap: 10px; color: #d32f2f; }
+.admin-stats { display: flex; gap: 20px; font-size: 0.9rem; color: #666; }
+
+/* TABS */
+.admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.tab-btn { background: #f1f5f9; border: none; padding: 10px 20px; border-radius: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; color: #64748b; font-weight: 600; }
+.tab-btn.active { background: #333; color: white; }
+
+/* LISTS */
+.admin-row { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.badge-role { background: #e3f2fd; color: #1565c0; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; vertical-align: middle; }
+.approve-btn { background: #2e7d32; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+.reject-btn { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+
+/* TABLE */
+.admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.admin-table th, .admin-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+.role-pill { font-size: 0.8rem; padding: 4px 8px; border-radius: 10px; font-weight: bold; text-transform: uppercase; }
+.role-pill.doctor { background: #e3f2fd; color: #1565c0; }
+.role-pill.patient { background: #f3e5f5; color: #7b1fa2; }
+.role-pill.admin { background: #333; color: white; }
+.delete-icon-btn { background: none; border: none; color: #ccc; cursor: pointer; transition: 0.2s; }
+.delete-icon-btn:hover { color: #d32f2f; }
+/* EXISTING STYLES... */
+
+/* NEW VERIFICATION TOOL */
+.verification-tool-section {
+  background: white; padding: 25px; border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+  margin-bottom: 40px;
+}
+.verification-tool-section h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 5px 0; color: #1e293b; }
+.verification-tool-section p { margin: 0 0 20px 0; color: #64748b; font-size: 0.9rem; }
+
+.verify-search-box {
+  display: flex; align-items: center; gap: 10px;
+  background: #f8fafc; padding: 5px 10px; border-radius: 12px; border: 1px solid #cbd5e1;
+}
+.verify-search-box input {
+  flex-grow: 1; border: none; background: none; outline: none; padding: 12px; font-size: 1rem;
+}
+.verify-search-box button {
+  background: #1565c0; color: white; border: none; padding: 10px 20px;
+  border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;
+}
+.verify-search-box button:disabled { background: #90caf9; }
+
+.verify-error-msg {
+  margin-top: 15px; padding: 10px; background: #ffebee; color: #c62828;
+  border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
 }
 
-.admin-header {
-  display: flex; align-items: center; gap: 15px; margin-bottom: 40px;
-  padding-bottom: 20px; border-bottom: 1px solid #eee;
-}
-.admin-header h2 { margin: 0; color: #d32f2f; }
+.mono-badge { font-family: monospace; background: #eee; padding: 2px 6px; border-radius: 4px; }
+.copy-btn { background: none; border: 1px solid #ccc; cursor: pointer; padding: 5px 10px; border-radius: 5px; margin-right: 10px; font-size: 0.8rem; }
+.copy-btn:hover { background: #f5f5f5; }
 
-.admin-list { display: flex; flex-direction: column; gap: 15px; }
-.admin-row {
-  background: white; padding: 20px; border-radius: 12px;
-  display: flex; justify-content: space-between; align-items: center;
-  border: 1px solid #e2e8f0;
-}
-.doc-info h4 { margin: 0 0 5px 0; font-size: 1.1rem; }
-.doc-info p { margin: 0; color: #64748b; font-size: 0.9rem; }
-.doc-info small { color: #94a3b8; }
-
-.admin-actions { display: flex; gap: 10px; }
-.approve-btn {
-  display: flex; align-items: center; gap: 5px;
-  background: #2e7d32; color: white; border: none; padding: 8px 16px;
-  border-radius: 8px; cursor: pointer; font-weight: bold;
-}
-.reject-btn {
-  display: flex; align-items: center; gap: 5px;
-  background: #d32f2f; color: white; border: none; padding: 8px 16px;
-  border-radius: 8px; cursor: pointer;
-}
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }

@@ -1,0 +1,122 @@
+.sidebar-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: white;
+  position: relative;
+}
+
+.sidebar-brand {
+  margin-bottom: 40px;
+  padding-left: 10px;
+}
+
+.sidebar-brand h2 {
+  font-size: 1.8rem;
+  color: #1565c0; /* Otsy Blue */
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+/* NAVIGATION */
+.sidebar-nav {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 12px;
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background: #f1f5f9;
+  color: #1565c0;
+}
+
+.nav-link.active {
+  background: #e3f2fd; /* Light Blue */
+  color: #1565c0;
+  font-weight: 600;
+}
+
+/* FOOTER */
+.sidebar-footer {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.logout-btn-side {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border: none;
+  background: none;
+  color: #ef5350; /* Red */
+  cursor: pointer;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.logout-btn-side:hover {
+  background: #ffebee;
+}
+
+/* MOBILE CLOSE BUTTON */
+.mobile-close-btn {
+  display: none; /* Hidden on desktop */
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .mobile-close-btn {
+    display: block;
+  }
+}
+
+/* Update this class */
+.sidebar-logo-img {
+  height: 50px; /* Adjust based on your logo shape */
+  width: auto;
+  display: block;
+  margin-left: 10px;
+}
+/* Logo Sizing in Sidebar */
+.sidebar-logo-img {
+  height: 45px; /* Adjust based on your logo aspect ratio */
+  width: auto;
+  display: block;
+  margin-left: 5px;
+  object-fit: contain;
+}
+
+/* Ensure the brand container aligns it nicely */
+.sidebar-brand {
+  margin-bottom: 40px;
+  padding-left: 10px;
+  display: flex;
+  align-items: center;
+}
+.sidebar-logo-img { height: 40px; }
+.sidebar-brand { display: flex; align-items: center; margin-bottom: 40px; padding-left: 10px; }
